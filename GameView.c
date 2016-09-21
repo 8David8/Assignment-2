@@ -9,6 +9,8 @@
      
 struct gameView {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    int round;
+    int location;
     int turn;
     int health;
     int score;
@@ -35,7 +37,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 void disposeGameView(GameView toBeDeleted)
 {
     //COMPLETE THIS IMPLEMENTATION
-    free( toBeDeleted );
+    free(toBeDeleted);
+    toBeDeleted = NULL;
 }
 
 
@@ -45,35 +48,37 @@ void disposeGameView(GameView toBeDeleted)
 Round getRound(GameView currentView)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return 0;
+    return currentView->round;
 }
 
 // Get the id of current player - ie whose turn is it?
 PlayerID getCurrentPlayer(GameView currentView)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return 0;
+    return currentView->turn;
 }
 
 // Get the current score
 int getScore(GameView currentView)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return 0;
+    return currentView->score;
 }
 
 // Get the current health points for a given player
 int getHealth(GameView currentView, PlayerID player)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return 0;
+
+    return currentView->health;
 }
 
 // Get the current location id of a given player
 LocationID getLocation(GameView currentView, PlayerID player)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return 0;
+    
+    return currentView->location;
 }
 
 //// Functions that return information about the history of the game
