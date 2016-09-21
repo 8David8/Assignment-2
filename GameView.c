@@ -10,7 +10,11 @@
 struct gameView {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     int turn;
-    int health;
+    int dracHealth;
+    int lordGHealth;
+    int vanHealth;
+    int minaHealth;
+    int docHealth;
     int score;
 };
      
@@ -18,18 +22,24 @@ struct gameView {
 // Creates a new GameView to summarise the current state of the game
 GameView newGameView(char *pastPlays, PlayerMessage messages[])
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    if(gameView->turn == 0) {
+
+    if(gameView->turn == 0) { // if the turn in the struct = 0 makes a freshhhh game.
     GameView gameView = malloc(sizeof(struct gameView));
-    gameView->hello = 42;
-    return gameView;
-   
+    gameView->turn = 0;
+    gameView->score = GAME_START_SCORE;
+    gameView->dracHealth = GAME_START_BLOOD_POINTS;
+    gameView->lordGHealth = GAME_START_HUNTER_LIFE_POINTS;
+    gameView->vanHealth = GAME_START_HUNTER_LIFE_POINTS;
+    gameView->minaHealth = GAME_START_HUNTER_LIFE_POINTS;
+    gameView->docHealth = GAME_START_HUNTER_LIFE_POINTS;  
+    
     } else {
-       free(gameView);
+       disposeGameView(gameView); // calls the dispose functions that will delete stuff.
        GameView gameView = malloc(sizeof(struct gameView));
+       gameView->turn = getScore(gameView);
        
     }
-     
+    return gameView;     
      
 // Frees all memory previously allocated for the GameView toBeDeleted
 void disposeGameView(GameView toBeDeleted)
