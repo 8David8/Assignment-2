@@ -47,13 +47,9 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 void disposeGameView(GameView toBeDeleted)
 {
     //COMPLETE THIS IMPLEMENTATION
-<<<<<<< HEAD
     free(toBeDeleted);
     toBeDeleted = NULL;
-=======
-    FEELS BAD MAN
     free( toBeDeleted );
->>>>>>> d3f793a5315eb668f82f6d7ad4467c206374d047
 }
 
 
