@@ -5,47 +5,46 @@
 #include "Globals.h"
 #include "Game.h"
 #include "GameView.h"
+
+#define FIRST_ROUND 1
+
 // #include "Map.h" ... if you decide to use the Map ADT
      
-struct gameView {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    int round;
+typedef struct _player {
+    int health;
     int location;
-    int turn;
-    int dracHealth;
-    int lordGHealth;
-    int vanHealth;
-    int minaHealth;
-    int docHealth;
-    int score;
+} player;
+
+struct gameview {
+   player playerStats[NUM_PLAYERS];
+   int score;
+   int turns;
+   int round;
 };
-     
+
+
 
 // Creates a new GameView to summarise the current state of the game
 GameView newGameView(char *pastPlays, PlayerMessage messages[])
 {
-
-    if(gameView->turn == 0) { // if the turn in the struct = 0 makes a freshhhh game.
+    if(gameView->round == 0) { // if the turn in the struct = 0 makes a freshhhh game.
     GameView gameView = malloc(sizeof(struct gameView));
     gameView->turn = 0;
+
     gameView->score = GAME_START_SCORE;
-    gameView->dracHealth = GAME_START_BLOOD_POINTS;
-    gameView->lordGHealth = GAME_START_HUNTER_LIFE_POINTS;
-    gameView->vanHealth = GAME_START_HUNTER_LIFE_POINTS;
-    gameView->minaHealth = GAME_START_HUNTER_LIFE_POINTS;
-    gameView->docHealth = GAME_START_HUNTER_LIFE_POINTS;  
     
     } else {
        disposeGameView(gameView); // calls the dispose functions that will delete stuff.
        GameView gameView = malloc(sizeof(struct gameView));
        gameView->turn = getScore(gameView);
-       
     }
     return gameView;     
+}
      
 // Frees all memory previously allocated for the GameView toBeDeleted
 void disposeGameView(GameView toBeDeleted)
 {
+    
     //COMPLETE THIS IMPLEMENTATION
     free(toBeDeleted);
     toBeDeleted = NULL;
@@ -80,8 +79,8 @@ int getScore(GameView currentView)
 int getHealth(GameView currentView, PlayerID player)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-
-    return currentView->health;
+    
+    return currentView->playerStats[player].health;
 }
 
 // Get the current location id of a given player
@@ -89,7 +88,7 @@ LocationID getLocation(GameView currentView, PlayerID player)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     
-    return currentView->location;
+    return currentView->playerStats[player].location;
 }
 
 //// Functions that return information about the history of the game
