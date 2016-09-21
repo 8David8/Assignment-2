@@ -9,7 +9,9 @@
      
 struct gameView {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    int hello;
+    int turn;
+    int health;
+    int score;
 };
      
 
@@ -17,10 +19,16 @@ struct gameView {
 GameView newGameView(char *pastPlays, PlayerMessage messages[])
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    if(gameView->turn == 0) {
     GameView gameView = malloc(sizeof(struct gameView));
     gameView->hello = 42;
     return gameView;
-}
+   
+    } else {
+       free(gameView);
+       GameView gameView = malloc(sizeof(struct gameView));
+       
+    }
      
      
 // Frees all memory previously allocated for the GameView toBeDeleted
