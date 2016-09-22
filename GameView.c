@@ -28,12 +28,20 @@ struct gameView {
 GameView newGameView(char *pastPlays, PlayerMessage messages[])   {
     assert(pastPlays != NULL); //Check inputs are valid
     assert(messages != NULL);  // Check inputs are valid
+    int counter = 0;  
    
     if(gameView->round == 0) { // if the turn in the struct = 0 makes a freshhhh game.
-    GameView gameView = malloc(sizeof(struct gameView));
-    gameView->turn = 0;
-    gameView->score = GAME_START_SCORE;
-
+        GameView gameView = malloc(sizeof(struct gameView));
+        gameView->turn = 0;
+        gameView->score = GAME_START_SCORE;
+        while (counter != PLAYER_MINA_HARKER) {
+            gameView->playerStats[counter]->health = GAME_START_HUNTER_LIFE_POINT; // sets all player health to default
+            gameView->playerStats[counter]->location = // i dunno where the player locations should be.
+        }
+        
+        gameView->playerStats[PLAYER_DRACULA]->health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
+        gameView->playerStats[PLAYER_DRACULA]->location = // dunno dracs location.
+    
     } else {
        disposeGameView(gameView); // calls the dispose functions that will delete stuff.
        GameView gameView = malloc(sizeof(struct gameView));
