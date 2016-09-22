@@ -1,3 +1,7 @@
 21/9/16 | Default Files were made
 21/9/16 | David: 
           Made respository
+          
+22/9/16 | Dylan:
+          Updated GameView function.          
+     

@@ -37,15 +37,23 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])   {
         while (counter != PLAYER_MINA_HARKER) {
             gameView->playerStats[counter]->health = GAME_START_HUNTER_LIFE_POINT; // sets all player health to default
             gameView->playerStats[counter]->location = // i dunno where the player locations should be.
+            counter++;
         }
         
         gameView->playerStats[PLAYER_DRACULA]->health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
         gameView->playerStats[PLAYER_DRACULA]->location = // dunno dracs location.
     
     } else {
-       disposeGameView(gameView); // calls the dispose functions that will delete stuff.
+       disposeGameView(gameView); // calls the dispose functions that will delete stuff. should this new here? because of we dispose of it
+       // how would we access the old stats?
        GameView gameView = malloc(sizeof(struct gameView));
        gameView->turn = getScore(gameView);
+       gameView->round = turn/NUM_PLAYERS; // check this
+       while (counter != PLAYER_MINA_HARKER){
+           gameView->playerStat[counter]->health = getHealth(gameView, counter); //grabs the health of player
+           gameView->playerStat[counter]->location = getLocation(gameView counter); // grabs the location of the player
+           counter++;
+       }
     }
     return gameView;
 }

@@ -9,7 +9,7 @@
 // #include "Map.h" ... if you decide to use the Map ADT
      
 struct hunterView {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    player playerStats[NUM_PLAYERS-1]
     int hello;
 };
      
