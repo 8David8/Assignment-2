@@ -8,12 +8,12 @@
 #include "Game.h"
 #include "GameView.h"
 
-#define FIRST_ROUND 1 
+#define FIRST_ROUND 1
 #define NUM_HUNTERS 4
 
 // below defines the number of characters that represents various data
 // about a particular player and his/her move and actions
-// mainly used for the pastPlay string 
+// mainly used for the pastPlay string
 // read the data page for more information about Past Plays
 #define NUM_CHAR_PLAYER 1
 #define NUM_CHAR_NEW_LOCATION 2
@@ -25,24 +25,24 @@
 
 typedef struct _player {
     int health;
-    // LocationID is typedef'd as an int in the Places.h file 
+    // LocationID is typedef'd as an int in the Places.h file
     // which is linked via the Game.h file
-    LocationID location; //location of the hunters 
+    LocationID location; //location of the hunters
+    LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
 } player;
 
 struct gameView {
     player playerStats[NUM_PLAYERS]; // NUM_PLAYERS is defined in Globals.h
     // the trail array stores dracula last 6 moves
-    // which translate to dracula's last 6 recent location, 
+    // which translate to dracula's last 6 recent location,
     // moves = locationID confirmed in the rules page
-    LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
     int score;
     int turns;
-    int rounds;  // Can be treated as current round or number of round occurred 
+    int rounds;  // Can be treated as current round or number of round occurred
 };
 
 // ----------------------------------------------
-// --- function prototypes that we created :D --- 
+// --- function prototypes that we created :D ---
 // ----------------------------------------------
 
 static PlayerID convertPlayerNameAbbrevToID(char *abbrev);
@@ -58,20 +58,20 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])   {
 
     GameView gView = malloc(sizeof(struct gameView));
     assert(gView != NULL); // Check if the new gameView is initialised
-   
+
     gView->score = GAME_START_SCORE;
-    gView->turns = (strlen(pastPlays)+1)/8; 
+    gView->turns = (strlen(pastPlays)+1)/8;
     gView->round = gView->turns/NUM_PLAYERS;
 
     // initialise all the hunter players stats
-    int hunterCount;  
+    int hunterCount;
     for (hunterCount = 0; hunterCount < NUM_HUNTERS; hunterCount++){
         gameView->playerStats[hunterCounter].health = GAME_START_HUNTER_LIFE_POINT; // sets all player health to default
     }
 
     // initialise Dracula's stats
     gameView->playerStats[PLAYER_DRACULA].health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
-   
+
     // pastPlays is a string containing a history of moves and actions
     // it represents everything that has happened so far in the game
     // Each play/turn is represented by 7 characters seperated by a space(another character)
@@ -82,28 +82,30 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])   {
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; player[1] = '\0';
-        
+
         // get the location abbrev for the current play and store it in a seperate array
-        char newLocation[NUM_CHAR_NEW_LOCATION+1]; 
-        newLocation[0] = pastPlays[index+1]; 
-        newLocation[1] = pastPlays[index+2]; 
+        char newLocation[NUM_CHAR_NEW_LOCATION+1];
+        newLocation[0] = pastPlays[index+1];
+        newLocation[1] = pastPlays[index+2];
         newLocation[2] = '\0';
 
         PlayerID currPlayer = convertPlayerNameAbbrevToID(playerNameAbbrev);
-         
+
         // current player is Dracula
         if (currPlayer == PLAYER_DRACULA){
-                
-            //injure or heal Dracula, it gets performed here  
+
+            //injure or heal Dracula, it gets performed here
 
 
-        //current player is a hunter   
+        //current player is a hunter
         } else {
              Player currHunter = currPlayer;
-
              //then check where the hunter is
              //if at hospital heal him
-             //if he/she encountered Drac or a trap, injured him >:  
+             if (currHunter->location == ST_JOSEPH_AND_ST_MARYS)
+                currHunter->health = GAME_START_HUNTER_LIFE_POINT;
+             //if he/she encountered Drac or a trap, injured him >:
+             if (currHunter->location == )
              //if he/she died teleport him to nearest hospital
              //update current position
              //you get the point :D
@@ -137,7 +139,7 @@ static PlayerID convertPlayerNameAbbrevToID(char *abbrev)
         case 'M': currPlayer = PLAYER_MINA_HARKER; break;
         case 'D': currPlayer = PLAYER_DRACULA; break;
         default: exit(1);
-    }       
+    }
     return currPlayer;
 }
 
