@@ -79,7 +79,7 @@ int giveMeTheScore(HunterView currentView)
 int howHealthyIs(HunterView currentView, PlayerID player)
 {
     int health =0;
-    heath = currentView->playerStats[player]->health;
+    health = currentView->playerStats[player]->health;
     return health;
 }
 
@@ -114,6 +114,11 @@ LocationID *whereCanIgo(HunterView currentView, int *numLocations,
 LocationID *whereCanTheyGo(HunterView currentView, int *numLocations,
                            PlayerID player, int road, int rail, int sea)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    Round currRound = getRound(currentView);
+    if(currRound == FIRST_ROUND) { // think someone hash defined it in the gameView. This checks for first round.
+        
+        
+
+    }
     return NULL;
 }
