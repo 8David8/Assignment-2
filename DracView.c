@@ -68,6 +68,7 @@ void lastMove(DracView currentView, PlayerID player,
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     LocationID dractrail[TRAIL_SIZE];
     giveMeTheTrail(currentView->trail, player);
+    
     return;
 }
 
@@ -86,7 +87,7 @@ void giveMeTheTrail(DracView currentView, PlayerID player,
                             LocationID trail[TRAIL_SIZE])
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    getHistory(currentView->gamestate, player, trail[TRAIL_SIZE]);
+    getHistory();
 }
 
 //// Functions that query the map to find information about connectivity
