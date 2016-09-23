@@ -149,17 +149,36 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                      pushLocationToTrail(gView, PLAYER_DRACULA, CITY_UNKNOWN);
                      updatedLocation = CITY_UNKNOWN;
                 } else if (newLocation[0] == 'S') {
-                     // Dracula is at sea 
+                     // Dracula is at sea but we dont know which sea
                      atSea = TRUE;
                      atCastle = FALSE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, SEA_UNKNOWN);
                      updatedLocation = SEA_UNKNOWN;
                 } else if (newLocation[0] == 'H') {
                      // Dracula is hiding
-                     //
+                     // push the most recent location onto the trail
+                     // because hiding simply means the dracula is staying in the same place
+                     // as he was in his previous move
+                     pushLocationToTrail(gView, PLAYER_DRACULA, gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-1]); 
+                     updatedLocation = HIDE;
                 } else if (newLocation[0] == 'D') {
                      // Dracula doubled back
-                     newLocation[1] = 
+                     // get the number of moves that Dracula has backtracked
+                     numMovesBackTrack = newLocation[1] - '0';
+                     LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-numMovesBackTrack];
+                     
+                     // now we re-check if Dracula backtracked 
+                     // to a sea or castle location
+                     if (backTrackDest == SEA_UNKNOWN || isSea(backTrackDest)) {
+                         atSea = TRUE;
+                         atCastle = FALSE;
+                     } else if (backTrackDest == CASTLE_DRACULA) {
+                         atSea = FALSE;
+                         atCastle = TRUE;
+                     } else {
+                         atSea = FALSE;
+                         atCastle = FALSE; 
+                     }
                 } else if (newLocation[0] == 'T') {
                      // Dracula teleports to Castle
                 } else {
@@ -214,6 +233,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 }
             } 
 
+            pushLocationToTrail(gView, currHunter, updatedLocation);
             gView->playerStats[currHunter].location = updatedLocation;
         }
     }
