@@ -53,7 +53,6 @@ struct gameView {
 
 static PlayerID convertPlayerNameAbbrevToID(char *abbrev);
 static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location);
-
 // ----------------------------------------------
 
 // IMPORTANT: newGameView gets called once and only once
@@ -183,8 +182,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                      pushLocationToTrail(gView, PLAYER_DRACULA, CASTLE_DRACULA);
                      updatedLocation = TELEPORT;
                 }
-            // else we know where precisely where the Dracula is
-            // we therefore infer that the pastPlays string was passed to Dracula
+            // else we precisely know where Dracula is
+            // and therefore infer that the pastPlays string was passed to Dracula
             } else {
                 if (isSea(updatedLocation)) { atSea = TRUE; } 
                 else { atSea = FALSE; }
@@ -196,11 +195,11 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             gView->playerStats[PLAYER_DRACULA].location = updatedLocation;
 
             // Dracula despises the sea, so whenever he is located on sea
-            // we reduce his life point by 2
+            // we reduce his blood point by 2
             if (atSea) {
                 gView->playerStats[PLAYER_DRACULA].health -= LIFE_LOSS_SEA;
             // Dracula loves his castle, so whenever he is in his castle
-            // he gains 10 life points
+            // he gains 10 blood points
             } else if (atCastle) {
                 gView->playerStats[PLAYER_DRACULA].health += LIFE_GAIN_CASTLE_DRACULA;
             }
@@ -367,6 +366,31 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return NULL;
+    //Check if all inputs are valid
+    assert(currentView != NULL);
+    assert(numLocations != NULL);
+    assert(player >= 0 && player < NUM_PLAYERS);
+    assert(validPlace(from)); //function from places.h
+
+    //initialise an array to return and hold the possible locations
+    LocationID reachable[NUM_MAP_LOCATIONS] = { FALSE };
+    reachable[from] = TRUE;
+
+    Map g = newMap();
+
+    VList curr = g->connections[from];
+    while (curr != NULL){
+        switch(player){
+            case PLAYER_DRACULA:
+                //Dracula cannot use RAIL
+                rail = FALSE;
+                if (curr->type != RAIL && curr->v != ST_JOSEPH_AND_ST_MARYS){
+                    reachable[curr-v] = TRUE;
+                }
+                curr = curr->next;
+            break;
+        }
+    }
+
+    return reachable;
 }
