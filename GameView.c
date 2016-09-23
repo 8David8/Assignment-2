@@ -11,10 +11,12 @@
 #define NUM_HUNTERS 4
 #define DEATH 0
 #define isCastle(place) (place == CASTLE_DRACULA)
+// used to determine what the double back type is
+#define DOUBLE_BACK_START (DOUBLE_BACK_1-1)  
 
 // below defines the number of characters that represents various data
 // about a particular player and his/her move and actions
-// mainly used for the pastPlay string 
+// mainly used for the pastPlay string
 // IMPORTANT: read the data page for more information about Past Plays
 #define NUM_CHAR_PER_PLAY 7
 #define NUM_CHAR_PLAYER 1
@@ -33,20 +35,20 @@ typedef struct _player {
     // all Hunters and Dracula himself have their own trails
     LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
     int health;
-    // LocationID is typedef'd as an int in the Places.h file 
+    // LocationID is typedef'd as an int in the Places.h file
     // which is linked via the Game.h file
-    LocationID location; //location of the hunters 
+    LocationID location; //location of the hunters
 } player;
 
 struct gameView {
     player playerStats[NUM_PLAYERS]; // NUM_PLAYERS is defined in Globals.h
     int score;
-    int turns;   // Can be treated as current turn or number of turn/s occurred 
-    int rounds;  // Can be treated as current round or number of round/s occurred 
+    int turns;   // Can be treated as current turn or number of turn/s occurred
+    int rounds;  // Can be treated as current round or number of round/s occurred
 };
 
 // ----------------------------------------------
-// --- function prototypes that we created :D --- 
+// --- function prototypes that we created :D ---
 // ----------------------------------------------
 
 static PlayerID convertPlayerNameAbbrevToID(char *abbrev);
@@ -64,13 +66,13 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
     GameView gView = malloc(sizeof(struct gameView));
     assert(gView != NULL); // Check if the new gameView is initialised
-   
+
     gView->score = GAME_START_SCORE;
     // each play/turn in the pastPlays string is represented by 7 characters
     // seperated by a space(one extra character), so technically one play/turn is 8 chars long
     // the last move however does not have a space at the end so we just add one to it
     // we the divide by 8 which gives us the number of total number of turns that has passed
-    gView->turns = (strlen(pastPlays)+1)/8; 
+    gView->turns = (strlen(pastPlays)+1)/8;
     gView->rounds = gView->turns/NUM_PLAYERS;
 
     // initialise the trails for all players :D
@@ -78,22 +80,22 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     int trailIndex;
     for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++;) {
         for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++;) {
-            gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE; 
-        } 
+            gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE;
+        }
     }
 
     // initialise all the hunter player's stats
-    int hunterCount;  
+    int hunterCount;
     for (hunterCount = 0; hunterCount < NUM_HUNTERS; hunterCount++) {
         gView->playerStats[hunterCounter].health = GAME_START_HUNTER_LIFE_POINT; // sets all player health to default
         // we set the location to nowhere when newGameView is called initially
         // this however will be updated if pastPlays contains previous history about players' moves and actions
-        gView->playerStats[hunterCounter].location = NOWHERE; 
+        gView->playerStats[hunterCounter].location = NOWHERE;
     }
 
     // initialise Dracula's stats
     gView->playerStats[PLAYER_DRACULA].health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
-    gView->playerStats[PLAYER_DRACULA].location = NOWHERE; 
+    gView->playerStats[PLAYER_DRACULA].location = NOWHERE;
 
     // pastPlays is a string containing a history of moves and actions
     // it represents everything that has happened so far in the game
@@ -105,68 +107,59 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; player[1] = '\0';
-        
+
         // get the location abbrev for the current play and store it in a seperate array
-        char newLocation[NUM_CHAR_NEW_LOCATION+1]; 
-        newLocation[0] = pastPlays[index+1]; 
-        newLocation[1] = pastPlays[index+2]; 
+        char newLocation[NUM_CHAR_NEW_LOCATION+1];
+        newLocation[0] = pastPlays[index+1];
+        newLocation[1] = pastPlays[index+2];
         newLocation[2] = '\0';
 
         PlayerID currCharacter = convertNameAbbrevToID(playerNameAbbrev);
-        // abbrevToID is a function within the Places.c file   
+        // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
-        
-        // the current moves (the old data, aka the moves that was previously stored) 
-        // must be processed before the new data/moves can be updated 
+
+        // the current moves (the old data, aka the moves that was previously stored)
+        // must be processed before the new data/moves can be updated
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
-                
             int atSea;
             int atCastle;
 
-            if (isSea(updatedLocation)){
-                atSea = TRUE;
-            } else {
-                atSea = FALSE;
-            }
-
-            if (isCastle(updatedLocation)) {
-                atCastle = TRUE;
-            } else {
-                atCastle = FALSE;
-            } 
-
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
-            // we therefore do not know where dracula is... 
+            // we therefore do not know where dracula is...
             // Note: the function abbrevToID returns the value NOWHERE
             // if it cannot find a valid location abbreviation
             if (updatedLocation == NOWHERE) {
+                // Dracula is in a city but we dont know where precisely
                 if (newLocation[0] == 'C') {
-                     // Dracula is in a city but we dont know where precisely
                      atSea = FALSE;
                      atCastle = FALSE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, CITY_UNKNOWN);
                      updatedLocation = CITY_UNKNOWN;
+
+                // Dracula is at sea but we dont know which sea
                 } else if (newLocation[0] == 'S') {
-                     // Dracula is at sea but we dont know which sea
                      atSea = TRUE;
                      atCastle = FALSE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, SEA_UNKNOWN);
                      updatedLocation = SEA_UNKNOWN;
+
+                // Dracula is hiding
+                // push the most recent location onto the trail
+                // because hiding simply means the dracula is staying in the same place
+                // as he was in his previous move
                 } else if (newLocation[0] == 'H') {
-                     // Dracula is hiding
-                     // push the most recent location onto the trail
-                     // because hiding simply means the dracula is staying in the same place
-                     // as he was in his previous move
                      pushLocationToTrail(gView, PLAYER_DRACULA, gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-1]); 
                      updatedLocation = HIDE;
+
+                // Dracula doubled back
+                // get the number of moves that Dracula has backtracked
                 } else if (newLocation[0] == 'D') {
-                     // Dracula doubled back
-                     // get the number of moves that Dracula has backtracked
                      numMovesBackTrack = newLocation[1] - '0';
                      LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-numMovesBackTrack];
-                     
+                     int doubleBackType = DOUBLE_BACK_START + numMovesBackTrack;
+
                      // now we re-check if Dracula backtracked 
                      // to a sea or castle location
                      if (backTrackDest == SEA_UNKNOWN || isSea(backTrackDest)) {
@@ -179,38 +172,68 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                          atSea = FALSE;
                          atCastle = FALSE; 
                      }
+
+                     pushLocationToTrail(gView, PLAYER_DRACULA, backTrackDest);
+                     updatedLocation = doubleBackType;
+
+                // Dracula teleports to Castle
                 } else if (newLocation[0] == 'T') {
-                     // Dracula teleports to Castle
-                } else {
-
+                     atSea = FALSE;
+                     atCastle = TRUE;
+                     pushLocationToTrail(gView, PLAYER_DRACULA, CASTLE_DRACULA);
+                     updatedLocation = TELEPORT;
                 }
+            // else we know where precisely where the Dracula is
+            // we therefore infer that the pastPlays string was passed to Dracula
             } else {
+                if (isSea(updatedLocation)) { atSea = TRUE; } 
+                else { atSea = FALSE; }
+                if (isCastle(updatedLocation)) { atCastle = TRUE; } 
+                else { atCastle = FALSE; }
+                pushLocationToTrail(gView, PLAYER_DRACULA, updatedLocation);
+            }
+            
+            gView->playerStats[PLAYER_DRACULA].location = updatedLocation;
 
+            // Dracula despises the sea, so whenever he is located on sea
+            // we reduce his life point by 2
+            if (atSea) {
+                gView->playerStats[PLAYER_DRACULA].health -= LIFE_LOSS_SEA;
+            // Dracula loves his castle, so whenever he is in his castle
+            // he gains 10 life points
+            } else if (atCastle) {
+                gView->playerStats[PLAYER_DRACULA].health += LIFE_GAIN_CASTLE_DRACULA;
+            }
+            
+            // a vampire has just matured 
+            // and therefore the score is reduced by 13
+            if (pastPlays[index+5] == 'V') {
+                gView->score -= SCORE_LOSS_VAMPIRE_MATURES;
             }
 
-        //current character is a hunter   
+        //current character is a hunter
         } else {
             Player currHunter = currCharacter;
-          
+
             // if hunter was at the hospital and he was dead, revive him and restore him to full health
             if (getLocation(gView, currHunter) == ST_JOSEPH_AND_ST_MARYS &&
                 getHealth(gView, currHunter) == DEATH) {
                 gView->playerStats[currHunter].health = GAME_START_HUNTER_LIFE_POINTS;
             }
-            
+
             // check if there were any encounters and let the game play accordingly
             // Note: encounters should only take place if the hunter or dracula is not dead
             int encounterIndex;
             for (encounterIndex = STARTING_INDEX_FOR_ENCOUNTERS; startingIndex < NUM_CHARS_PER_PLAY &&
-                gView->playerStats[currHunter] > DEATH && 
+                gView->playerStats[currHunter] > DEATH &&
                 gView->playerStats[PLAYER_DRACULA] > DEATH; encounterIndex++;) {
                 if (pastPlays[index+encounterIndex] == 'D') {
-                    gView->playerStats[currHunter] -= LIFE_LOSS_DRACULA_ENCOUNTER; 
+                    gView->playerStats[currHunter] -= LIFE_LOSS_DRACULA_ENCOUNTER;
                     gView->playerStats[PLAYER_DRACULA] -= LIFE_LOSS_HUNTER_ENCOUNTER;
-                } 
+                }
             }
-            
-            // check if the hunter died, and if they did die, 
+
+            // check if the hunter died, and if they did die,
             // - set their health to zero (this is for bookeeping purposes)
             //   (we only want death to be associated with the value zero, nothing more nothing less)
             // - reduce the overall score by 6 (SCORE_LOSS_HUNTER_HOSPITAL)
@@ -219,7 +242,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 gView->playerStats[currHunter].health = DEATH;
                 gView->score -= SCORE_LOSS_HUNTER_HOSPITAL;
                 updatedLocation = ST_JOSEPH_AND_ST_MARYS;
-            } 
+            }
 
             // if the hunter is in the same location as he was in the previous turn
             // we assume that he has rested and therefore he gains 3 life points
@@ -231,7 +254,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 if (getHealth(gView, currHunter) > GAME_START_HUNTER_LIFE_POINTS) {
                     gView->playerStats[currHunter].health = GAME_START_HUNTER_LIFE_POINTS;
                 }
-            } 
+            }
 
             pushLocationToTrail(gView, currHunter, updatedLocation);
             gView->playerStats[currHunter].location = updatedLocation;
@@ -257,14 +280,14 @@ void disposeGameView(GameView toBeDeleted)
 static PlayerID convertNameAbbrevToID(char *abbrev)
 {
     PlayerID currPlayer; int firstIndex = 0;
-    switch (abbrev[firstIndex]) { 
+    switch (abbrev[firstIndex]) {
         case 'G': currPlayer = PLAYER_LORD_GODALMING; break;
         case 'S': currPlayer = PLAYER_DR_SEWARD; break;
         case 'H': currPlayer = PLAYER_VAN_HELSING; break;
         case 'M': currPlayer = PLAYER_MINA_HARKER; break;
         case 'D': currPlayer = PLAYER_DRACULA; break;
         default: exit(1);  // not sure if exit(1) works
-    }       
+    }
     return currPlayer;
 }
 
@@ -274,7 +297,7 @@ static void pushLocationToTrail(GameView currentView, PlayerID player, LocationI
     int trailIndex;
     for (trailIndex = 1; playerCounter < TRAIL_SIZE; trailIndex++;) {
         currentView->playerStats[player].trail[trailIndex-1] = currentView->playerStats[player].trail[trailIndex]
-    }    
+    }
 
     currentView->playerStats[player].trail[TRAIL_SIZE-1] = location;
 }
@@ -326,7 +349,13 @@ LocationID getLocation(GameView currentView, PlayerID player)
 void getHistory(GameView currentView, PlayerID player,
                             LocationID trail[TRAIL_SIZE])
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+    //check if input is valid
+    assert(currentView != NULL);
+    assert(player >= 0 && player <= NUM_PLAYERS);
+    assert(trail[TRAIL_SIZE] != NULL);
+
+    for (i = 0; i < TRAIL_SIZE; i++)
+        trail[i] = currentView->playerStats[player].trail[i];
 }
 
 // ---------------------------------------------------------------------------
