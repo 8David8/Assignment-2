@@ -120,8 +120,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // must be processed before the new data/moves can be updated
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
-<<<<<<< Updated upstream
-
+            
             int atSea;
             int atCastle;
 
