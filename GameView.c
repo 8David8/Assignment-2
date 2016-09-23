@@ -101,7 +101,9 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     // the seven characters indicate what has happened during the player's turn
     // so to loop through each play/turn we increment index by 8(NUM_CHAR_PER_PLAY(7)+1)
     int index;
-    for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY+1) {
+    for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY) {
+
+        printf("hi\n");
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; playerNameAbbrev[1] = '\0';
@@ -116,6 +118,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
 
+        //printf("hi%d%s\n", currCharacter, playerNameAbbrev);
         // the current moves (the old data, aka the moves that was previously stored)
         // must be processed before the new data/moves can be updated
         // current character is Dracula
@@ -257,6 +260,10 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             pushLocationToTrail(gView, currHunter, updatedLocation);
             gView->playerStats[currHunter].location = updatedLocation;
         }
+
+        if (pastPlays[index] == ' ') {
+            index++;    
+        }
     }
     return gView;
 }
@@ -315,7 +322,7 @@ Round getRound(GameView currentView)
 PlayerID getCurrentPlayer(GameView currentView)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return currentView->turns;
+    return currentView->turns % NUM_PLAYERS;
 }
 
 // Get the current score
@@ -403,7 +410,6 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
         curr = curr->next;
         }
     }
-    */
-
+*/
     return 0;
 }
