@@ -26,6 +26,7 @@
 // #include "Map.h" ... if you decide to use the Map ADT
 
 typedef struct _player {
+    LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
     int health;
     // LocationID is typedef'd as an int in the Places.h file 
     // which is linked via the Game.h file
@@ -37,7 +38,6 @@ struct gameView {
     // the trail array stores dracula last 6 moves
     // which translate to dracula's last 6 recent location, 
     // moves = locationID confirmed in the rules page
-    LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
     int score;
     int turns;   // Can be treated as current turn or number of turn/s occurred 
     int rounds;  // Can be treated as current round or number of round/s occurred 
@@ -101,6 +101,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         newLocation[2] = '\0';
 
         PlayerID currCharacter = convertNameAbbrevToID(playerNameAbbrev);
+        // abbrevToID is a function within the Places.c file   
+        LocationID updatedLocation = abbrevToID(newLocation);
         
         // the current moves (the old data, aka the moves that was previously stored) 
         // must be processed before the new data/moves can be updated 
@@ -108,14 +110,12 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         if (currCharacter == PLAYER_DRACULA) {
                 
             //injure or heal Dracula, it gets performed here  
-            
+
+            d
 
         //current character is a hunter   
         } else {
             Player currHunter = currCharacter;
-          
-            // abbrevToID is a function within the Places.c file   
-            LocationID updatedLocation = abbrevToID(newLocation);
           
             // if hunter was at the hospital and he was dead, revive him and restore him to full health
             if (getLocation(gView, currHunter) == ST_JOSEPH_AND_ST_MARYS &&
