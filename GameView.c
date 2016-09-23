@@ -366,6 +366,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
+   /*
     //Check if all inputs are valid
     assert(currentView != NULL);
     assert(numLocations != NULL);
@@ -391,6 +392,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
             break;
         }
     }
+    */
 
-    return reachable;
+    return 0;
 }
