@@ -51,7 +51,6 @@ struct gameView {
 
 static PlayerID convertPlayerNameAbbrevToID(char *abbrev);
 static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location);
-
 // ----------------------------------------------
 
 // IMPORTANT: newGameView gets called once and only once
@@ -120,7 +119,6 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // must be processed before the new data/moves can be updated
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
-<<<<<<< Updated upstream
 
             int atSea;
             int atCastle;
@@ -325,6 +323,31 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return NULL;
+    //Check if all inputs are valid
+    assert(currentView != NULL);
+    assert(numLocations != NULL);
+    assert(player >= 0 && player < NUM_PLAYERS);
+    assert(validPlace(from)); //function from places.h
+
+    //initialise an array to return and hold the possible locations
+    LocationID reachable[NUM_MAP_LOCATIONS] = { FALSE };
+    reachable[from] = TRUE;
+
+    Map g = newMap();
+
+    VList curr = g->connections[from];
+    while (curr != NULL){
+        switch(player){
+            case PLAYER_DRACULA:
+                //Dracula cannot use RAIL
+                rail = FALSE;
+                if (curr->type != RAIL && curr->v != ST_JOSEPH_AND_ST_MARYS){
+                    reachable[curr-v] = TRUE;
+                }
+                curr = curr->next;
+            break;
+        }
+    }
+
+    return reachable;
 }
