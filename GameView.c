@@ -102,8 +102,10 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     // so to loop through each play/turn we increment index by 8(NUM_CHAR_PER_PLAY(7)+1)
     int index;
     for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY) {
-
-        printf("hi\n");
+      
+        if (pastPlays[index] == ' ') {
+            index++;    
+        }
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; playerNameAbbrev[1] = '\0';
@@ -256,14 +258,10 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                     gView->playerStats[currHunter].health = GAME_START_HUNTER_LIFE_POINTS;
                 }
             }
-
             pushLocationToTrail(gView, currHunter, updatedLocation);
             gView->playerStats[currHunter].location = updatedLocation;
         }
 
-        if (pastPlays[index] == ' ') {
-            index++;    
-        }
     }
     return gView;
 }
