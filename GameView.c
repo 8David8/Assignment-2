@@ -7,6 +7,7 @@
 #include "Globals.h"
 #include "Game.h"
 #include "GameView.h"
+#include "Map.h"
 
 #define NUM_HUNTERS 4
 #define DEATH 0
@@ -25,8 +26,6 @@
 #define NUM_CHAR_ENCOUNTER_DRACULA 2
 #define NUM_CHAR_ACTION_DRACULA 1
 #define STARTING_INDEX_FOR_ENCOUNTERS 3
-
-// #include "Map.h" ... if you decide to use the Map ADT
 
 typedef struct _player {
     // trail represents a character's last 6 moves
@@ -51,8 +50,9 @@ struct gameView {
 // --- function prototypes that we created :D ---
 // ----------------------------------------------
 
-static PlayerID convertPlayerNameAbbrevToID(char *abbrev);
+static PlayerID convertNameAbbrevToID(char *abbrev);
 static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location);
+
 // ----------------------------------------------
 
 // IMPORTANT: newGameView gets called once and only once
@@ -77,19 +77,18 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     // initialise the trails for all players :D
     int playerCounter;
     int trailIndex;
-    for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++;) {
-        for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++;) {
+    for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++) {
+        for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++) {
             gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE;
         }
     }
-
     // initialise all the hunter player's stats
     int hunterCount;
     for (hunterCount = 0; hunterCount < NUM_HUNTERS; hunterCount++) {
-        gView->playerStats[hunterCounter].health = GAME_START_HUNTER_LIFE_POINT; // sets all player health to default
+        gView->playerStats[hunterCount].health = GAME_START_HUNTER_LIFE_POINTS; // sets all player health to default
         // we set the location to nowhere when newGameView is called initially
         // this however will be updated if pastPlays contains previous history about players' moves and actions
-        gView->playerStats[hunterCounter].location = NOWHERE;
+        gView->playerStats[hunterCount].location = NOWHERE;
     }
 
     // initialise Dracula's stats
@@ -105,7 +104,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY+1) {
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
-        playerNameAbbrev[0] = pastPlays[index]; player[1] = '\0';
+        playerNameAbbrev[0] = pastPlays[index]; playerNameAbbrev[1] = '\0';
 
         // get the location abbrev for the current play and store it in a seperate array
         char newLocation[NUM_CHAR_NEW_LOCATION+1];
@@ -155,7 +154,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 // Dracula doubled back
                 // get the number of moves that Dracula has backtracked
                 } else if (newLocation[0] == 'D') {
-                     numMovesBackTrack = newLocation[1] - '0';
+                     int numMovesBackTrack = newLocation[1] - '0';
                      LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-numMovesBackTrack];
                      int doubleBackType = DOUBLE_BACK_START + numMovesBackTrack;
 
@@ -212,7 +211,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
         //current character is a hunter
         } else {
-            Player currHunter = currCharacter;
+            PlayerID currHunter = currCharacter;
 
             // if hunter was at the hospital and he was dead, revive him and restore him to full health
             if (getLocation(gView, currHunter) == ST_JOSEPH_AND_ST_MARYS &&
@@ -223,12 +222,12 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             // check if there were any encounters and let the game play accordingly
             // Note: encounters should only take place if the hunter or dracula is not dead
             int encounterIndex;
-            for (encounterIndex = STARTING_INDEX_FOR_ENCOUNTERS; startingIndex < NUM_CHARS_PER_PLAY &&
-                gView->playerStats[currHunter] > DEATH &&
-                gView->playerStats[PLAYER_DRACULA] > DEATH; encounterIndex++;) {
+            for (encounterIndex = STARTING_INDEX_FOR_ENCOUNTERS; encounterIndex < NUM_CHAR_PER_PLAY &&
+                gView->playerStats[currHunter].health > DEATH &&
+                gView->playerStats[PLAYER_DRACULA].health > DEATH; encounterIndex++) {
                 if (pastPlays[index+encounterIndex] == 'D') {
-                    gView->playerStats[currHunter] -= LIFE_LOSS_DRACULA_ENCOUNTER;
-                    gView->playerStats[PLAYER_DRACULA] -= LIFE_LOSS_HUNTER_ENCOUNTER;
+                    gView->playerStats[currHunter].health -= LIFE_LOSS_DRACULA_ENCOUNTER;
+                    gView->playerStats[PLAYER_DRACULA].health -= LIFE_LOSS_HUNTER_ENCOUNTER;
                 }
             }
 
@@ -294,8 +293,8 @@ static PlayerID convertNameAbbrevToID(char *abbrev)
 static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location)
 {
     int trailIndex;
-    for (trailIndex = 1; playerCounter < TRAIL_SIZE; trailIndex++;) {
-        currentView->playerStats[player].trail[trailIndex-1] = currentView->playerStats[player].trail[trailIndex]
+    for (trailIndex = 1; trailIndex < TRAIL_SIZE; trailIndex++) {
+        currentView->playerStats[player].trail[trailIndex-1] = currentView->playerStats[player].trail[trailIndex];
     }
 
     currentView->playerStats[player].trail[TRAIL_SIZE-1] = location;
@@ -351,8 +350,9 @@ void getHistory(GameView currentView, PlayerID player,
     //check if input is valid
     assert(currentView != NULL);
     assert(player >= 0 && player <= NUM_PLAYERS);
-    assert(trail[TRAIL_SIZE] != NULL);
-
+    assert(trail != NULL);
+   
+    int i;
     for (i = 0; i < TRAIL_SIZE; i++)
         trail[i] = currentView->playerStats[player].trail[i];
 }
