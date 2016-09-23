@@ -366,14 +366,17 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
-    //Check if all inputs are valid
+/*    //Check if all inputs are valid
     assert(currentView != NULL);
     assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
     assert(validPlace(from)); //function from places.h
 
     //initialise an array to return and hold the possible locations
-    LocationID reachable[NUM_MAP_LOCATIONS] = { FALSE };
+    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+    int j;
+    for (j = 0; j < NUM_MAP_LOCATIONS; j++)
+        reachable[j] = 0;
     reachable[from] = TRUE;
 
     Map g = newMap();
@@ -396,7 +399,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                     }
                     //Find cities located 3 links away if i = 3
                     if (i == 3){
-                        second = g->connections[curr-v];
+                        second = g->connections[curr->v];
                         VList third = g->connections[second->v];
                         while(third != NULL){
                             if (third->type == RAIL)
@@ -412,5 +415,6 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
             reachable[curr->v] = TRUE;
         curr = curr->next;
         }
-    return reachable;
+    return reachable; */
+    return 0;
 }
