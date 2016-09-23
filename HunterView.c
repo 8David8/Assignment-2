@@ -9,29 +9,29 @@
 // #include "Map.h" ... if you decide to use the Map ADT
      
 struct hunterView {
-    player playerStats[NUM_PLAYERS-1] // the number of hunters
-    int score;
-    int turn;
-    int round;
+   GameView gameState;
+   Map mapState;
+
 };
      
 
 // Creates a new HunterView to summarise the current state of the game
 HunterView newHunterView(char *pastPlays, PlayerMessage messages[])
 {
-    int counter =0;
+    assert(pastPlays != NULL);
+    assert(messages != NULL);
+
     HunterView hunterView = malloc(sizeof(struct hunterView));
-    hunterView->score = getScore(gameView); //should just grab it from the most current gameview
-    hunterView->turn = //
-    hunterView->round = getRound(gameView);
-    while(counter != PLAYER_MINA_HARKER) {
-        hunterView->playerStat[counter]->health = getHealth(gameView counter);
-	hunterView->playerStat[counter]->location = getLocation(gameView counter);
-    }
+    
+    hunterView->gameState = newGameView(pastPlays, messages);
+    hunterView->mapState = newMap(pastPlays, messages);
+    
     return hunterView;
+
+
+
 }
-     
-     
+    
 // Frees all memory previously allocated for the HunterView toBeDeleted
 void disposeHunterView(HunterView toBeDeleted)
 {
@@ -114,8 +114,13 @@ LocationID *whereCanIgo(HunterView currentView, int *numLocations,
 LocationID *whereCanTheyGo(HunterView currentView, int *numLocations,
                            PlayerID player, int road, int rail, int sea)
 {
+    assert(currentView != NULL); // make sure that it's not empty
+    assert(player >= 0 && player <= NUM_PLAYERS); //checks to see if the player ID is legit
+    assert(message !=NULL); // makes sure message is not zero. 
+
     Round currRound = getRound(currentView);
     if(currRound == FIRST_ROUND) { // think someone hash defined it in the gameView. This checks for first round.
+        
         
         
 
