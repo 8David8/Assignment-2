@@ -403,6 +403,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                 reachable[third->v] = 3;
                         }
                     }
+                    break;
                 }
         }
         if (sea == TRUE && curr->type == BOAT)
@@ -411,7 +412,5 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
             reachable[curr->v] = TRUE;
         curr = curr->next;
         }
-    }
-
     return reachable;
 }
