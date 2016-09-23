@@ -9,29 +9,29 @@
 // #include "Map.h" ... if you decide to use the Map ADT
      
 struct hunterView {
-    player playerStats[NUM_PLAYERS-1] // the number of hunters
-    int score;
-    int turn;
-    int round;
+   GameView gameState;
+   Map mapState;
+
 };
      
 
 // Creates a new HunterView to summarise the current state of the game
 HunterView newHunterView(char *pastPlays, PlayerMessage messages[])
 {
-    int counter =0;
+    assert(pastPlays != NULL);
+    assert(messages != NULL);
+
     HunterView hunterView = malloc(sizeof(struct hunterView));
-    hunterView->score = getScore(gameView); //should just grab it from the most current gameview
-    hunterView->turn = //
-    hunterView->round = getRound(gameView);
-    while(counter != PLAYER_MINA_HARKER) {
-        hunterView->playerStat[counter]->health = getHealth(gameView counter);
-	hunterView->playerStat[counter]->location = getLocation(gameView counter);
-    }
+    
+    hunterView->gameState = newGameView(pastPlays, messages);
+    hunterView->mapState = newMap(pastPlays, messages);
+    
     return hunterView;
+
+
+
 }
-     
-     
+    
 // Frees all memory previously allocated for the HunterView toBeDeleted
 void disposeHunterView(HunterView toBeDeleted)
 {
@@ -47,48 +47,34 @@ void disposeHunterView(HunterView toBeDeleted)
 // Get the current round
 Round giveMeTheRound(HunterView currentView)
 {
-    return (currentView->round);
+    return getRound(hunterView->gameState); 
 }
 
 // Get the id of current player
 PlayerID whoAmI(HunterView currentView)
 {
-    PlayerID curr = 0;
-    Round currTurn = getTurn(currView);
-    if (currTurn % NUM_PLAYERS == 1) {
-    	curr = 1;
-    } else if (currTurn % NUM_PLAYERS == 2) {
-	curr = 2
-    } else if (currTurn % NUM_PLAYERS == 3) {
-	curr = 3
-    } else if (currTurn % NUM_PLAYERS == 4) {
-	curr = 4
-    } else {
-	curr = 0;
-    }
-    return curr;
+   
+    return getCurrentPlayer(hunterView->gameState);
+
 }
 
 // Get the current score
 int giveMeTheScore(HunterView currentView)
 {
-    return currentView->score;
+    return getScore(hunterView->gameState);
 }
 
 // Get the current health points for a given player
 int howHealthyIs(HunterView currentView, PlayerID player)
 {
-    int health =0;
-    health = currentView->playerStats[player]->health;
-    return health;
+    
+    return getHealth(hunterView->gameState, player);
 }
 
 // Get the current location id of a given player
 LocationID whereIs(HunterView currentView, PlayerID player)
 {
-    LocationID location = 0;
-    location = currentView->playerStats[player]->location;
-    return location;
+    return getLocation(hunterView->gameState, player);
 }
 
 //// Functions that return information about the history of the game
@@ -97,7 +83,9 @@ LocationID whereIs(HunterView currentView, PlayerID player)
 void giveMeTheTrail(HunterView currentView, PlayerID player,
                             LocationID trail[TRAIL_SIZE])
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+
+    return getHistory(hunterView->gameState player,trail)
+
 }
 
 //// Functions that query the map to find information about connectivity
@@ -114,9 +102,15 @@ LocationID *whereCanIgo(HunterView currentView, int *numLocations,
 LocationID *whereCanTheyGo(HunterView currentView, int *numLocations,
                            PlayerID player, int road, int rail, int sea)
 {
-    Round currRound = getRound(currentView);
-    if(currRound == FIRST_ROUND) { // think someone hash defined it in the gameView. This checks for first round.
-        
+    assert(currentView != NULL); // make sure that it's not empty
+    assert(player >= 0 && player <= NUM_PLAYERS); //checks to see if the player ID is legit
+    assert(message !=NULL); // makes sure message is not zero. 
+   
+    LocationID  *moves; //makes a pointer to where i will make the array of locations.
+    Round currRound = getRound(hunterView->gameState);
+    if(currRound == FIRST_ROUND) {         
+        moves = malloc(sizeof(LocationID) * NUM_MAP_LOCATIONS);
+
         
 
     }
