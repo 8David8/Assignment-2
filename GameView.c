@@ -13,7 +13,7 @@
 #define DEATH 0
 #define isCastle(place) (place == CASTLE_DRACULA)
 // used to determine what the double back type is
-#define DOUBLE_BACK_START (DOUBLE_BACK_1-1)  
+#define DOUBLE_BACK_START (DOUBLE_BACK_1-1)
 
 // below defines the number of characters that represents various data
 // about a particular player and his/her move and actions
@@ -101,7 +101,9 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     // the seven characters indicate what has happened during the player's turn
     // so to loop through each play/turn we increment index by 8(NUM_CHAR_PER_PLAY(7)+1)
     int index;
-    for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY+1) {
+    for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY) {
+
+        printf("hi\n");
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; playerNameAbbrev[1] = '\0';
@@ -116,6 +118,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
 
+        //printf("hi%d%s\n", currCharacter, playerNameAbbrev);
         // the current moves (the old data, aka the moves that was previously stored)
         // must be processed before the new data/moves can be updated
         // current character is Dracula
@@ -148,7 +151,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 // because hiding simply means the dracula is staying in the same place
                 // as he was in his previous move
                 } else if (newLocation[0] == 'H') {
-                     pushLocationToTrail(gView, PLAYER_DRACULA, gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-1]); 
+                     pushLocationToTrail(gView, PLAYER_DRACULA, gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-1]);
                      updatedLocation = HIDE;
 
                 // Dracula doubled back
@@ -158,7 +161,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                      LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-numMovesBackTrack];
                      int doubleBackType = DOUBLE_BACK_START + numMovesBackTrack;
 
-                     // now we re-check if Dracula backtracked 
+                     // now we re-check if Dracula backtracked
                      // to a sea or castle location
                      if (backTrackDest == SEA_UNKNOWN || isSea(backTrackDest)) {
                          atSea = TRUE;
@@ -168,7 +171,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                          atCastle = TRUE;
                      } else {
                          atSea = FALSE;
-                         atCastle = FALSE; 
+                         atCastle = FALSE;
                      }
 
                      pushLocationToTrail(gView, PLAYER_DRACULA, backTrackDest);
@@ -184,13 +187,13 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             // else we precisely know where Dracula is
             // and therefore infer that the pastPlays string was passed to Dracula
             } else {
-                if (isSea(updatedLocation)) { atSea = TRUE; } 
+                if (isSea(updatedLocation)) { atSea = TRUE; }
                 else { atSea = FALSE; }
-                if (isCastle(updatedLocation)) { atCastle = TRUE; } 
+                if (isCastle(updatedLocation)) { atCastle = TRUE; }
                 else { atCastle = FALSE; }
                 pushLocationToTrail(gView, PLAYER_DRACULA, updatedLocation);
             }
-            
+
             gView->playerStats[PLAYER_DRACULA].location = updatedLocation;
 
             // Dracula despises the sea, so whenever he is located on sea
@@ -202,8 +205,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             } else if (atCastle) {
                 gView->playerStats[PLAYER_DRACULA].health += LIFE_GAIN_CASTLE_DRACULA;
             }
-            
-            // a vampire has just matured 
+
+            // a vampire has just matured
             // and therefore the score is reduced by 13
             if (pastPlays[index+5] == 'V') {
                 gView->score -= SCORE_LOSS_VAMPIRE_MATURES;
@@ -256,6 +259,10 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
             pushLocationToTrail(gView, currHunter, updatedLocation);
             gView->playerStats[currHunter].location = updatedLocation;
+        }
+
+        if (pastPlays[index] == ' ') {
+            index++;    
         }
     }
     return gView;
@@ -315,7 +322,7 @@ Round getRound(GameView currentView)
 PlayerID getCurrentPlayer(GameView currentView)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    return currentView->turns;
+    return currentView->turns % NUM_PLAYERS;
 }
 
 // Get the current score
@@ -351,7 +358,7 @@ void getHistory(GameView currentView, PlayerID player,
     assert(currentView != NULL);
     assert(player >= 0 && player <= NUM_PLAYERS);
     assert(trail != NULL);
-   
+
     int i;
     for (i = 0; i < TRAIL_SIZE; i++)
         trail[i] = currentView->playerStats[player].trail[i];
@@ -366,7 +373,12 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
+<<<<<<< HEAD
 /*    //Check if all inputs are valid
+=======
+   /*
+    //Check if all inputs are valid
+>>>>>>> 53a75139391b9fcf9ac31164738dcfbb509f2309
     assert(currentView != NULL);
     assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
@@ -385,15 +397,26 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     VList curr = g->connections[from];
     while (curr != NULL){
         if (rail == TRUE && curr->type == RAIL){
-            VList sum = g->connections[curr->v];
+            VList second = g->connections[curr->v];
             switch(i){
                 case 1: reachable[curr->v] = 1; break;
                 default:
-                    while(sum != NULL){
-                        if (sum->type == RAIL)
-                            reachable[sum->type] = 2;
+                    //Find the cities located 2 links away if i = 2
+                    while(second != NULL){
+                        if (second->type == RAIL)
+                            reachable[second->v] = 2;
+                    }
+                    //Find cities located 3 links away if i = 3
+                    if (i == 3){
+                        second = g->connections[curr-v];
+                        VList third = g->connections[second->v];
+                        while(third != NULL){
+                            if (third->type == RAIL)
+                                reachable[third->v] = 3;
                         }
                     }
+                    break;
+                }
         }
         if (sea == TRUE && curr->type == BOAT)
             reachable[curr->v] = TRUE;
@@ -404,4 +427,8 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     }
 */
     return 0;
+<<<<<<< HEAD
+=======
+    //return reachable;
+>>>>>>> 53a75139391b9fcf9ac31164738dcfbb509f2309
 }
