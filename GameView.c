@@ -26,6 +26,7 @@
 #define NUM_CHAR_ENCOUNTER_DRACULA 2
 #define NUM_CHAR_ACTION_DRACULA 1
 #define STARTING_INDEX_FOR_ENCOUNTERS 3
+#define PAST_PLAYS_DELIMITER ' '
 
 typedef struct _player {
     // trail represents a character's last 6 moves
@@ -52,6 +53,7 @@ struct gameView {
 
 static PlayerID convertNameAbbrevToID(char *abbrev);
 static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location);
+static void setupGameState(GameView gView, char *pastPlays);
 
 // ----------------------------------------------
 
@@ -66,46 +68,26 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     GameView gView = malloc(sizeof(struct gameView));
     assert(gView != NULL); // Check if the new gameView is initialised
 
-    gView->score = GAME_START_SCORE;
-    // each play/turn in the pastPlays string is represented by 7 characters
-    // seperated by a space(one extra character), so technically one play/turn is 8 chars long
-    // the last move however does not have a space at the end so we just add one to it
-    // we the divide by 8 which gives us the number of total number of turns that has passed
-    gView->turns = (strlen(pastPlays)+1)/8;
-    gView->rounds = gView->turns/NUM_PLAYERS;
-
-    // initialise the trails for all players :D
-    int playerCounter;
-    int trailIndex;
-    for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++) {
-        for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++) {
-            gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE;
-        }
-    }
-    // initialise all the hunter player's stats
-    int hunterCount;
-    for (hunterCount = 0; hunterCount < NUM_HUNTERS; hunterCount++) {
-        gView->playerStats[hunterCount].health = GAME_START_HUNTER_LIFE_POINTS; // sets all player health to default
-        // we set the location to nowhere when newGameView is called initially
-        // this however will be updated if pastPlays contains previous history about players' moves and actions
-        gView->playerStats[hunterCount].location = NOWHERE;
-    }
-
-    // initialise Dracula's stats
-    gView->playerStats[PLAYER_DRACULA].health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
-    gView->playerStats[PLAYER_DRACULA].location = NOWHERE;
+    setupGameState(gView, pastPlays);
 
     // pastPlays is a string containing a history of moves and actions
     // it represents everything that has happened so far in the game
     // Each play/turn is represented by 7 characters seperated by a space(another extra character)
     // the seven characters indicate what has happened during the player's turn
-    // so to loop through each play/turn we increment index by 8(NUM_CHAR_PER_PLAY(7)+1)
+    // so to loop through each play/turn we increment index by 7
+    // and check if it reaches a space, if it does increment 
     int index;
     for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY) {
-      
-        if (pastPlays[index] == ' ') {
+     
+        // the if statement below checks if it the index reaches a space
+        // after successfully loop through the plays
+        // if so then we know it hasn't reached the end of the string
+        // if it doesn't reach a space, then don't increment as that will 
+        // skip the NULL terminator which is not what we want
+        if (pastPlays[index] == PAST_PLAYS_DELIMITER) {
             index++;    
         }
+
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
         playerNameAbbrev[0] = pastPlays[index]; playerNameAbbrev[1] = '\0';
@@ -120,13 +102,11 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
 
-        //printf("hi%d%s\n", currCharacter, playerNameAbbrev);
         // the current moves (the old data, aka the moves that was previously stored)
         // must be processed before the new data/moves can be updated
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
-            int atSea;
-            int atCastle;
+            int atSea; int atCastle;
 
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
@@ -208,12 +188,13 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 gView->playerStats[PLAYER_DRACULA].health += LIFE_GAIN_CASTLE_DRACULA;
             }
 
+            if (pastPlays[index+5] == 'M') {
+                //?????
             // a vampire has just matured
             // and therefore the score is reduced by 13
-            if (pastPlays[index+5] == 'V') {
+            } else if (pastPlays[index+5] == 'V') {
                 gView->score -= SCORE_LOSS_VAMPIRE_MATURES;
             }
-
         //current character is a hunter
         } else {
             PlayerID currHunter = currCharacter;
@@ -295,14 +276,47 @@ static PlayerID convertNameAbbrevToID(char *abbrev)
 }
 
 // push the next(most recent) location onto the trail
-static void pushLocationToTrail(GameView currentView, PlayerID player, LocationID location)
+static void pushLocationToTrail(GameView gView, PlayerID player, LocationID location)
 {
     int trailIndex;
     for (trailIndex = 1; trailIndex < TRAIL_SIZE; trailIndex++) {
-        currentView->playerStats[player].trail[trailIndex-1] = currentView->playerStats[player].trail[trailIndex];
+        gView->playerStats[player].trail[trailIndex-1] = gView->playerStats[player].trail[trailIndex];
+    }
+    gView->playerStats[player].trail[TRAIL_SIZE-1] = location;
+}
+
+// setup the initial game state
+// declare and initialise the score, turns, rounds to the appropriate value
+static void setupGameState(GameView gView, char *pastPlays) 
+{
+    gView->score = GAME_START_SCORE;
+    // each play/turn in the pastPlays string is represented by 7 characters
+    // seperated by a space(one extra character), so technically one play/turn is 8 chars long
+    // the last move however does not have a space at the end so we just add one to it
+    // we the divide by 8 which gives us the number of total number of turns that has passed
+    gView->turns = (strlen(pastPlays)+1)/8;
+    gView->rounds = gView->turns/NUM_PLAYERS;
+
+    // initialise the trails for all players :D
+    int playerCounter;
+    int trailIndex;
+    for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++) {
+        for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++) {
+            gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE;
+        }
+    }
+    // initialise all the hunter player's stats
+    int hunterCount;
+    for (hunterCount = 0; hunterCount < NUM_HUNTERS; hunterCount++) {
+        gView->playerStats[hunterCount].health = GAME_START_HUNTER_LIFE_POINTS; // sets all player health to default
+        // we set the location to nowhere when newGameView is called initially
+        // this however will be updated if pastPlays contains previous history about players' moves and actions
+        gView->playerStats[hunterCount].location = NOWHERE;
     }
 
-    currentView->playerStats[player].trail[TRAIL_SIZE-1] = location;
+    // initialise Dracula's stats
+    gView->playerStats[PLAYER_DRACULA].health = GAME_START_BLOOD_POINTS; // sets dracs blood points in the beginning
+    gView->playerStats[PLAYER_DRACULA].location = NOWHERE;
 }
 
 // ----------------------------------------------------------------------------------
@@ -312,35 +326,30 @@ static void pushLocationToTrail(GameView currentView, PlayerID player, LocationI
 // Get the current round
 Round getRound(GameView currentView)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     return currentView->rounds;
 }
 
 // Get the id of current player - ie whose turn is it?
 PlayerID getCurrentPlayer(GameView currentView)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     return currentView->turns % NUM_PLAYERS;
 }
 
 // Get the current score
 int getScore(GameView currentView)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     return currentView->score;
 }
 
 // Get the current health points for a given player
 int getHealth(GameView currentView, PlayerID player)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     return currentView->playerStats[player].health;
 }
 
 // Get the current location id of a given player
 LocationID getLocation(GameView currentView, PlayerID player)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     return currentView->playerStats[player].location;
 }
 
@@ -371,12 +380,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
-<<<<<<< HEAD
 /*    //Check if all inputs are valid
-=======
-   /*
-    //Check if all inputs are valid
->>>>>>> 53a75139391b9fcf9ac31164738dcfbb509f2309
     assert(currentView != NULL);
     assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
@@ -425,8 +429,5 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     }
 */
     return 0;
-<<<<<<< HEAD
-=======
     //return reachable;
->>>>>>> 53a75139391b9fcf9ac31164738dcfbb509f2309
 }

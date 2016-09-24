@@ -26,9 +26,7 @@ int main()
     printf("Test for Dracula trail and basic functions\n");
     PlayerMessage messages2[] = {"Hello","Rubbish","Stuff","","Mwahahah"};
     gv = newGameView("GST.... SAO.... HZU.... MBB.... DC?....", messages2);
-    printf("%d\n", getCurrentPlayer(gv));
     assert(getCurrentPlayer(gv) == PLAYER_LORD_GODALMING);
-    printf("passed1 assert\n");
     assert(getRound(gv) == 1);
     assert(getLocation(gv,PLAYER_LORD_GODALMING) == STRASBOURG);
     assert(getLocation(gv,PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
