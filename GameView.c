@@ -151,19 +151,19 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                          atSea = TRUE;
                          atCastle = FALSE;
                      } else if (backTrackDest == CITY_UNKNOWN) {
-                        atSea = FALSE;
-                        atCastle = FALSE;
+                         atSea = FALSE;
+                         atCastle = FALSE;
                      } else if (backTrackDest == UNKNOWN_LOCATION) {
-                        atSea = FALSE;
-                        atCastle = FALSE;
+                         atSea = FALSE;
+                         atCastle = FALSE;
                      } else {
-                        if (isSea(backTrackDest)) {
-                            atSea = TRUE;
-                            atCastle = FALSE;
-                        } else if (isCastle(backTrackDest)) {
-                            atSea = FALSE;
-                            atCastle = TRUE;
-                        }
+                         if (isSea(backTrackDest)) {
+                             atSea = TRUE;
+                             atCastle = FALSE;
+                         } else if (isCastle(backTrackDest)) {
+                             atSea = FALSE;
+                             atCastle = TRUE;
+                         }
                      }
 
                      pushLocationToTrail(gView, PLAYER_DRACULA, doubleBackType);

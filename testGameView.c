@@ -62,7 +62,6 @@ int main()
     PlayerMessage messages4[] = {"Hello","Rubbish","Stuff","","Mwahahah","Aha!","","","","Back I go"};
     gv = newGameView("GGE.... SGE.... HGE.... MGE.... DS?.... "
                      "GST.... SST.... HST.... MST.... DD1....", messages4);
-    printf("location: %d\n", getLocation(gv,PLAYER_DRACULA));
     assert(getLocation(gv,PLAYER_DRACULA) == DOUBLE_BACK_1);
     getHistory(gv,PLAYER_DRACULA,history);
     assert(history[0] == DOUBLE_BACK_1);
