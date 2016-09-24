@@ -101,6 +101,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         PlayerID currCharacter = convertNameAbbrevToID(playerNameAbbrev);
         // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
+        //printf("%d\n", updatedLocation);
 
         // the current moves (the old data, aka the moves that was previously stored)
         // must be processed before the new data/moves can be updated
@@ -108,6 +109,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         if (currCharacter == PLAYER_DRACULA) {
             int atSea; int atCastle;
 
+            
+    printf("%d\n", getHealth(gView, PLAYER_DRACULA));
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
             // we therefore do not know where dracula is...
@@ -118,7 +121,11 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 if (newLocation[0] == 'C') {
                      atSea = FALSE;
                      atCastle = FALSE;
+
+    printf("hi: %d\n", getHealth(gView, PLAYER_DRACULA));
                      pushLocationToTrail(gView, PLAYER_DRACULA, CITY_UNKNOWN);
+
+    printf("hi2: %d\n", getHealth(gView, PLAYER_DRACULA));
                      updatedLocation = CITY_UNKNOWN;
 
                 // Dracula is at sea but we dont know which sea
@@ -190,6 +197,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
             if (pastPlays[index+5] == 'M') {
                 //?????
+                printf("hi\n");
             // a vampire has just matured
             // and therefore the score is reduced by 13
             } else if (pastPlays[index+5] == 'V') {
@@ -278,11 +286,17 @@ static PlayerID convertNameAbbrevToID(char *abbrev)
 // push the next(most recent) location onto the trail
 static void pushLocationToTrail(GameView gView, PlayerID player, LocationID location)
 {
+
+    //printf("%d\n", getHealth(gView, PLAYER_DRACULA));
     int trailIndex;
-    for (trailIndex = 1; trailIndex < TRAIL_SIZE; trailIndex++) {
-        gView->playerStats[player].trail[trailIndex-1] = gView->playerStats[player].trail[trailIndex];
+    for (trailIndex = TRAIL_SIZE; trailIndex > 0; trailIndex--) {
+
+    printf("in loop: %d\n", getHealth(gView, PLAYER_DRACULA));
+        gView->playerStats[player].trail[trailIndex] = gView->playerStats[player].trail[trailIndex-1];
+
     }
-    gView->playerStats[player].trail[TRAIL_SIZE-1] = location;
+    gView->playerStats[player].trail[0] = location;
+    printf("in loop: %d\n", gView->playerStats[player].trail[0]);
 }
 
 // setup the initial game state

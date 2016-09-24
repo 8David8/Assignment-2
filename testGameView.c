@@ -46,6 +46,7 @@ int main()
     assert(getLocation(gv,PLAYER_LORD_GODALMING) == GENEVA);
     LocationID history[TRAIL_SIZE];
     getHistory(gv,PLAYER_DRACULA,history);
+    printf("%d\n", history[0]);
     assert(history[0] == GENEVA);
     assert(history[1] == UNKNOWN_LOCATION);
     getHistory(gv,PLAYER_LORD_GODALMING,history);
