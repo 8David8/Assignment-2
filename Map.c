@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include "Map.h"
 #include "Places.h"
+#include "Globals.h"
+
+#define TRUE 1
+#define FALSE 0
 
 typedef struct vNode *VList;
 
@@ -135,7 +139,7 @@ int numE(Map g, TransportID type)
 }
 
 
-int getConnections(LocationID from, PlayerID player, Round round,
+int *getConnections(LocationID from, int player, int round,
                    int road, int rail, int sea){
     //initialise an array to return and hold the possible locations
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
@@ -146,12 +150,12 @@ int getConnections(LocationID from, PlayerID player, Round round,
 
     Map g = newMap();
 
-    // the maximum distance that can be moved via rail 
-    // is determined by the sum of the round number (0..366) 
+    // the maximum distance that can be moved via rail
+    // is determined by the sum of the round number (0..366)
     // and the Hunter number (0..3)
-    int rail = (round + player) % 4;
+    int railRestriction = (round + player) % 4;
     // Dracula hates trains so he cant move be train
-    if (rail == 0 || player == PLAYER_DRACULA){
+    if (railRestriction == 0 || player == PLAYER_DRACULA){
         rail = FALSE;
     }
     VList curr = g->connections[from];
@@ -177,14 +181,13 @@ int getConnections(LocationID from, PlayerID player, Round round,
                     }
                     break;
             }
-        }   
+        }
         if (sea == TRUE && curr->type == BOAT)
             reachable[curr->v] = TRUE;
         if (road == TRUE && curr->type == ROAD)
             reachable[curr->v] = TRUE;
         curr = curr->next;
         }
-    }
     return reachable;
 }
 

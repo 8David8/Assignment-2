@@ -76,14 +76,14 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
     // Each play/turn is represented by 7 characters seperated by a space(another extra character)
     // the seven characters indicate what has happened during the player's turn
     // so to loop through each play/turn we increment index by 7
-    // and check if it reaches a space, if it does increment 
+    // and check if it reaches a space, if it does increment
     int index;
     for (index = 0; pastPlays[index] != '\0'; index += NUM_CHAR_PER_PLAY) {
-     
+
         // the if statement below checks if it the index reaches a space
         // after successfully loop through the plays
         // if so then we know it hasn't reached the end of the string
-        // if it doesn't reach a space, then don't increment as that will 
+        // if it doesn't reach a space, then don't increment as that will
         // skip the NULL terminator which is not what we want
         if (pastPlays[index] == PAST_PLAYS_DELIMITER) { index++; }
 
@@ -106,7 +106,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
             int atSea; int atCastle;
-            
+
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
             // we therefore do not know where dracula is...
@@ -290,7 +290,7 @@ static void pushLocationToTrail(GameView gView, PlayerID player, LocationID loca
 
 // setup the initial game state
 // declare and initialise the score, turns, rounds to the appropriate value
-static void setupGameState(GameView gView, char *pastPlays) 
+static void setupGameState(GameView gView, char *pastPlays)
 {
     gView->score = GAME_START_SCORE;
     // each play/turn in the pastPlays string is represented by 7 characters
@@ -388,17 +388,30 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
     assert(validPlace(from)); //function from places.h
-   
+
     //int connections[NUM_MAP_LOCATIONS] = {FALSE};
     //initialise an array to return and hold the possible locations
-    
+
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
     getConnections(from, player, round, road, rail, sea);
 
+    //Count how many locations are connected
+    int cityid;
+    int numConnections = 0;
+    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++){
+        if (reachable[cityid] == 1)
+            numConnections++;
+    }
+    *numLocations = numConnections;
+    //Now form an array that can hold the locations connected
+    LocationID *connected = malloc(sizeof(int) * numConnections);
+    int counter = 0;
+    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++){
+        if(reachable[cityid] != 0)
+            connected[counter++] = cityid;
+    }
 
-    //LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
-
-    return 0; 
+    return connected;
 }
 
 /*
