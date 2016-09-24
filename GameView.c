@@ -218,7 +218,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 }
             }
 
-            // check if the hunter died, and if he/she did die,
+            // check if the hunter died, and if they did die,
             // - set their health to zero (this is for bookeeping purposes)
             //   (we only want death to be associated with the value zero, nothing more nothing less)
             // - reduce the overall score by 6 (SCORE_LOSS_HUNTER_HOSPITAL)
@@ -279,6 +279,8 @@ static PlayerID convertNameAbbrevToID(char *abbrev)
 // push the next(most recent) location onto the trail
 static void pushLocationToTrail(GameView gView, PlayerID player, LocationID location)
 {
+
+    //printf("%d\n", getHealth(gView, PLAYER_DRACULA));
     int trailIndex;
     for (trailIndex = TRAIL_SIZE-1; trailIndex > 0; trailIndex--) {
         gView->playerStats[player].trail[trailIndex] = gView->playerStats[player].trail[trailIndex-1];
@@ -382,7 +384,8 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                                int road, int rail, int sea)
 {
     //Check if all inputs are valid
-    assert(currentView != NULL); assert(numLocations != NULL);
+    assert(currentView != NULL);
+    assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
     assert(validPlace(from)); //function from places.h
 
@@ -390,16 +393,8 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     //initialise an array to return and hold the possible locations
 
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
-    reachable = getConnections(from, player, round, road, rail, sea); 
+    reachable = getConnections(from, player, round, road, rail, sea);
 
-    int i;
-    for (i = 0; i < NUM_MAP_LOCATIONS; i++){
-        if(reachable[i] == TRUE) (*numLocations)++;     
-        //printf("%d: %d\n",i ,reachable[i]);
-    }
-
-    return reachable; 
-/*
     //Count how many locations are connected
     int cityid;
     int numConnections = 0;
@@ -417,7 +412,6 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     }
 
     return connected;
-    */
 }
 
 /*

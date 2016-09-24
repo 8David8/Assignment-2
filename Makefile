@@ -22,4 +22,3 @@ DracView.o : DracView.c DracView.h
 
 clean :
 	rm -f $(BINS) *.o core
-
