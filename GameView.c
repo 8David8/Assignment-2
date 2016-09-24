@@ -110,7 +110,6 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             int atSea; int atCastle;
 
             
-    printf("%d\n", getHealth(gView, PLAYER_DRACULA));
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
             // we therefore do not know where dracula is...
@@ -121,13 +120,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 if (newLocation[0] == 'C') {
                      atSea = FALSE;
                      atCastle = FALSE;
-
-    printf("hi: %d\n", getHealth(gView, PLAYER_DRACULA));
                      pushLocationToTrail(gView, PLAYER_DRACULA, CITY_UNKNOWN);
-
-    printf("hi2: %d\n", getHealth(gView, PLAYER_DRACULA));
                      updatedLocation = CITY_UNKNOWN;
-
                 // Dracula is at sea but we dont know which sea
                 } else if (newLocation[0] == 'S') {
                      atSea = TRUE;
@@ -147,23 +141,32 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 // get the number of moves that Dracula has backtracked
                 } else if (newLocation[0] == 'D') {
                      int numMovesBackTrack = newLocation[1] - '0';
-                     LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-numMovesBackTrack];
+                     LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE+numMovesBackTrack];
+                     printf("backTrackDest: %d\n", backTrackDest);
                      int doubleBackType = DOUBLE_BACK_START + numMovesBackTrack;
 
                      // now we re-check if Dracula backtracked
                      // to a sea or castle location
-                     if (backTrackDest == SEA_UNKNOWN || isSea(backTrackDest)) {
+                     if (backTrackDest == SEA_UNKNOWN) {
                          atSea = TRUE;
                          atCastle = FALSE;
-                     } else if (backTrackDest == CASTLE_DRACULA) {
-                         atSea = FALSE;
-                         atCastle = TRUE;
+                     } else if (backTrackDest == CITY_UNKNOWN) {
+                        atSea = FALSE;
+                        atCastle = FALSE;
+                     } else if (backTrackDest == UNKNOWN_LOCATION) {
+                        atSea = FALSE;
+                        atCastle = FALSE;
                      } else {
-                         atSea = FALSE;
-                         atCastle = FALSE;
+                        if (isSea(backTrackDest)) {
+                            atSea = TRUE;
+                            atCastle = FALSE;
+                        } else if (isCastle(backTrackDest)) {
+                            atSea = FALSE;
+                            atCastle = TRUE;
+                        }
                      }
 
-                     pushLocationToTrail(gView, PLAYER_DRACULA, backTrackDest);
+                     pushLocationToTrail(gView, PLAYER_DRACULA, doubleBackType);
                      updatedLocation = doubleBackType;
 
                 // Dracula teleports to Castle
@@ -289,14 +292,10 @@ static void pushLocationToTrail(GameView gView, PlayerID player, LocationID loca
 
     //printf("%d\n", getHealth(gView, PLAYER_DRACULA));
     int trailIndex;
-    for (trailIndex = TRAIL_SIZE; trailIndex > 0; trailIndex--) {
-
-    printf("in loop: %d\n", getHealth(gView, PLAYER_DRACULA));
+    for (trailIndex = TRAIL_SIZE-1; trailIndex > 0; trailIndex--) {
         gView->playerStats[player].trail[trailIndex] = gView->playerStats[player].trail[trailIndex-1];
-
     }
     gView->playerStats[player].trail[0] = location;
-    printf("in loop: %d\n", gView->playerStats[player].trail[0]);
 }
 
 // setup the initial game state
