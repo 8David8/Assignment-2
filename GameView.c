@@ -33,6 +33,7 @@ typedef struct _player {
     // which translate to a character's last 6 recent location
     // moves = locationID confirmed in the rules page
     // all Hunters and Dracula himself have their own trails
+    // structure of trail array: [Most recent location][n][n][n][n][location 6 moves ago]
     LocationID trail[TRAIL_SIZE]; //TRAIL_SIZE is defined in Game.h
     int health;
     // LocationID is typedef'd as an int in the Places.h file
@@ -84,9 +85,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // if so then we know it hasn't reached the end of the string
         // if it doesn't reach a space, then don't increment as that will 
         // skip the NULL terminator which is not what we want
-        if (pastPlays[index] == PAST_PLAYS_DELIMITER) {
-            index++;    
-        }
+        if (pastPlays[index] == PAST_PLAYS_DELIMITER) { index++; }
 
         // get the name abbrev for the current play and store it in a seperate array
         char playerNameAbbrev[NUM_CHAR_PLAYER+1];
@@ -101,14 +100,12 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         PlayerID currCharacter = convertNameAbbrevToID(playerNameAbbrev);
         // abbrevToID is a function within the Places.c file
         LocationID updatedLocation = abbrevToID(newLocation);
-        //printf("%d\n", updatedLocation);
 
         // the current moves (the old data, aka the moves that was previously stored)
         // must be processed before the new data/moves can be updated
         // current character is Dracula
         if (currCharacter == PLAYER_DRACULA) {
             int atSea; int atCastle;
-
             
             // if updated location is equivalent to NOWHERE
             // then we know for certain that the pastPlays string was given to a hunter
@@ -142,28 +139,20 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 } else if (newLocation[0] == 'D') {
                      int numMovesBackTrack = newLocation[1] - '0';
                      LocationID backTrackDest = gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE+numMovesBackTrack];
-                     printf("backTrackDest: %d\n", backTrackDest);
                      int doubleBackType = DOUBLE_BACK_START + numMovesBackTrack;
 
                      // now we re-check if Dracula backtracked
                      // to a sea or castle location
-                     if (backTrackDest == SEA_UNKNOWN) {
-                         atSea = TRUE;
-                         atCastle = FALSE;
-                     } else if (backTrackDest == CITY_UNKNOWN) {
-                         atSea = FALSE;
-                         atCastle = FALSE;
-                     } else if (backTrackDest == UNKNOWN_LOCATION) {
-                         atSea = FALSE;
-                         atCastle = FALSE;
+                     if (backTrackDest == SEA_UNKNOWN) { atSea = TRUE; atCastle = FALSE;
+                     } else if (backTrackDest == CITY_UNKNOWN) { atSea = FALSE; atCastle = FALSE;
+                     // we also have to account for the -1 value
+                     // which is UNKNOWN LOCATION
+                     } else if (backTrackDest == UNKNOWN_LOCATION) { atSea = FALSE; atCastle = FALSE;
+                     // else we know its an exact location between 0 < x < 70
+                     // and therefore we can use idToType to validate places
                      } else {
-                         if (isSea(backTrackDest)) {
-                             atSea = TRUE;
-                             atCastle = FALSE;
-                         } else if (isCastle(backTrackDest)) {
-                             atSea = FALSE;
-                             atCastle = TRUE;
-                         }
+                         if (isSea(backTrackDest)) { atSea = TRUE; atCastle = FALSE;
+                         } else if (isCastle(backTrackDest)) { atSea = FALSE; atCastle = TRUE; }
                      }
 
                      pushLocationToTrail(gView, PLAYER_DRACULA, doubleBackType);
@@ -206,7 +195,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             } else if (pastPlays[index+5] == 'V') {
                 gView->score -= SCORE_LOSS_VAMPIRE_MATURES;
             }
-        //current character is a hunter
+
+        // current character is a hunter
         } else {
             PlayerID currHunter = currCharacter;
 
@@ -388,12 +378,33 @@ void getHistory(GameView currentView, PlayerID player,
 // --- Functions that query the map to find information about connectivity ---
 // ---------------------------------------------------------------------------
 
+
 // Returns an array of LocationIDs for all directly connected locations
 LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
                                int road, int rail, int sea)
 {
-/*    //Check if all inputs are valid
+    //Check if all inputs are valid
+    assert(currentView != NULL);
+    assert(numLocations != NULL);
+    assert(player >= 0 && player < NUM_PLAYERS);
+    assert(validPlace(from)); //function from places.h
+   
+    //int connections[NUM_MAP_LOCATIONS] = {FALSE};
+
+    //initialise an array to return and hold the possible locations
+    //LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+
+    return 0; 
+}
+
+/*
+// Returns an array of LocationIDs for all directly connected locations
+LocationID *connectedLocations(GameView currentView, int *numLocations,
+                               LocationID from, PlayerID player, Round round,
+                               int road, int rail, int sea)
+{
+    //Check if all inputs are valid
     assert(currentView != NULL);
     assert(numLocations != NULL);
     assert(player >= 0 && player < NUM_PLAYERS);
@@ -443,7 +454,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
         curr = curr->next;
         }
     }
-*/
     return 0;
     //return reachable;
 }
+*/
