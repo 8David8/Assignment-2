@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "Map.h"
 #include "Places.h"
+#include "Globals.h"
 
 typedef struct vNode *VList;
 
@@ -134,8 +135,7 @@ int numE(Map g, TransportID type)
     return nE;
 }
 
-
-int getConnections(LocationID from, PlayerID player, Round round,
+int *getConnections(LocationID from, int player, int round,
                    int road, int rail, int sea){
     //initialise an array to return and hold the possible locations
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
@@ -149,30 +149,30 @@ int getConnections(LocationID from, PlayerID player, Round round,
     // the maximum distance that can be moved via rail 
     // is determined by the sum of the round number (0..366) 
     // and the Hunter number (0..3)
-    int rail = (round + player) % 4;
+    int railLink = (round + player) % 4;
     // Dracula hates trains so he cant move be train
-    if (rail == 0 || player == PLAYER_DRACULA){
-        rail = FALSE;
+    if (railLink == 0 || player == PLAYER_DRACULA){
+        railLink = FALSE;
     }
     VList curr = g->connections[from];
     while (curr != NULL){
         if (rail == TRUE && curr->type == RAIL){
             VList second = g->connections[curr->v];
-            switch(rail){
-                case 1: reachable[curr->v] = 1; break;
+            switch (railLink) {
+                case 1: reachable[curr->v] = TRUE; break;
                 default:
                     //Find cities located 2 links away if rail = 2
-                    while(second != NULL){
+                    while(second != NULL) {
                         if (second->type == RAIL)
-                            reachable[second->v] = 1;
+                            reachable[second->v] = TRUE;
                     }
                     //Find cities located 3 links away if rail = 3
-                    if (rail == 3){
+                    if (railLink == 3) {
                         second = g->connections[curr->v];
                         VList third = g->connections[second->v];
-                        while(third != NULL){
+                        while (third != NULL) {
                             if (third->type == RAIL)
-                                reachable[third->v] = 1;
+                                reachable[third->v] = TRUE;
                         }
                     }
                     break;
@@ -183,7 +183,7 @@ int getConnections(LocationID from, PlayerID player, Round round,
         if (road == TRUE && curr->type == ROAD)
             reachable[curr->v] = TRUE;
         curr = curr->next;
-        }
+        
     }
     return reachable;
 }
