@@ -6,7 +6,6 @@
 #include "Game.h"
 #include "GameView.h"
 #include "DracView.h"
-<<<<<<< HEAD
 
 #define DEATH 0
 #define FIRST_ROUND 0
@@ -78,11 +77,16 @@ DracView newDracView(char *pastPlays, PlayerMessage messages[])
                 giveMeTheTrail(dView, PLAYER_DRACULA, popTrapLocation);
                 dView->trapsAndVamp[popTrapLocation[TRAIL_SIZE-1]][VAMP_INDEX]--;
             }
+        // else its the hunter's turn :D
         } else {
             int encounterIndex;
             for (encounterIndex = 0; encounterIndex < NUM_CHAR_ENCOUNTER_HUNTER; encounterIndex++) {
+               // hunter encountered a trap, ouch
+               // trap is then disarmed 
                if (pastPlays[encounterIndex+2] == 'T') {
                    dView->trapsAndVamp[updatedLocation][TRAP_INDEX]--;
+               // hunter encounters an immature vampire
+               // hunter kills it yay!
                } else if (pastPlays[encounterIndex+2] == 'V') {
                    dView->trapsAndVamp[updatedLocation][VAMP_INDEX]--;
                }
@@ -169,7 +173,7 @@ void lastMove(DracView currentView, PlayerID player,
     LocationID mostRecentLocationBeforeMove = trail[1];
     *start = mostRecentLocationBeforeMove;
 
-/*
+/* helens work
     LocationID playerTrail[TRAIL_SIZE];
     giveMeTheTrail(currentView, player, playerTrail);
 
@@ -196,7 +200,7 @@ void lastMove(DracView currentView, PlayerID player,
             *end = playerTrail[4];
         }
     }
-    */
+*/
 }
 
 // Find out what minions are placed at the specified location
@@ -210,8 +214,7 @@ void whatsThere(DracView currentView, LocationID where,
         *numTraps = currentView->trapsAndVamp[where][TRAP_INDEX];
         *numVamps = currentView->trapsAndVamp[where][VAMP_INDEX];
     }
-/*
- Helen's work
+/* Helen's work
     int i = 0;
     while (i < strlen(currentView->pastPlays)) {
         if ((i % 40) > 31) {
@@ -241,7 +244,7 @@ void whatsThere(DracView currentView, LocationID where,
     
     *numTraps = currentView->traps[where];
     *numVamps = currentView->vamps[where];
-    */
+*/
 }
 
 //// Functions that return information about the history of the game
@@ -286,7 +289,7 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
     LocationID hunterLocation = whereIs(currentView, player);
     int currentRound = giveMeTheRound(currentView); //retrieves the current round from the round function
 
-    /*
+    /* Helen's work
     if (currentRound == 0) { //Case 1 - Round 0, where player has not made a move, therefore can move anywhere to start
         LocationID *place = malloc(sizeof(LocationID)*NUM_MAP_LOCATIONS);
         int i;
@@ -298,7 +301,7 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
         
         return place;
     } 
-*/
+    */
     return connectedLocations(currentView->gState, numLocations,
                               hunterLocation, player, 
                               currentRound, road, rail, sea);
