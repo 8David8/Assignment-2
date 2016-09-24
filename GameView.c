@@ -115,14 +115,12 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
             if (updatedLocation == NOWHERE) {
                 // Dracula is in a city but we dont know where precisely
                 if (newLocation[0] == 'C') {
-                     atSea = FALSE;
-                     atCastle = FALSE;
+                     atSea = FALSE; atCastle = FALSE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, CITY_UNKNOWN);
                      updatedLocation = CITY_UNKNOWN;
                 // Dracula is at sea but we dont know which sea
                 } else if (newLocation[0] == 'S') {
-                     atSea = TRUE;
-                     atCastle = FALSE;
+                     atSea = TRUE; atCastle = FALSE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, SEA_UNKNOWN);
                      updatedLocation = SEA_UNKNOWN;
 
@@ -161,8 +159,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
                 // Dracula teleports to Castle
                 } else if (newLocation[0] == 'T') {
-                     atSea = FALSE;
-                     atCastle = TRUE;
+                     atSea = FALSE; atCastle = TRUE;
                      pushLocationToTrail(gView, PLAYER_DRACULA, CASTLE_DRACULA);
                      updatedLocation = TELEPORT;
                 }
@@ -303,8 +300,7 @@ static void setupGameState(GameView gView, char *pastPlays)
     gView->rounds = gView->turns/NUM_PLAYERS;
 
     // initialise the trails for all players :D
-    int playerCounter;
-    int trailIndex;
+    int playerCounter; int trailIndex;
     for (playerCounter = 0; playerCounter < NUM_PLAYERS; playerCounter++) {
         for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++) {
             gView->playerStats[playerCounter].trail[trailIndex] = NOWHERE;
@@ -371,9 +367,9 @@ void getHistory(GameView currentView, PlayerID player,
     assert(player >= 0 && player <= NUM_PLAYERS);
     assert(trail != NULL);
 
-    int i;
-    for (i = 0; i < TRAIL_SIZE; i++)
-        trail[i] = currentView->playerStats[player].trail[i];
+    int trailIndex;
+    for (trailIndex = 0; i < TRAIL_SIZE; trailIndex++)
+        trail[trailIndex] = currentView->playerStats[player].trail[trailIndex];
 }
 
 // ---------------------------------------------------------------------------
