@@ -387,7 +387,10 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     assert(validPlace(from)); //function from places.h
 
     //initialise an array to return and hold the possible locations
-    LocationID reachable[NUM_MAP_LOCATIONS] = { FALSE };
+    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+    int j;
+    for (j = 0; j < NUM_MAP_LOCATIONS; j++)
+        reachable[j] = 0;
     reachable[from] = TRUE;
 
     Map g = newMap();
@@ -410,7 +413,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
                     }
                     //Find cities located 3 links away if i = 3
                     if (i == 3){
-                        second = g->connections[curr-v];
+                        second = g->connections[curr->v];
                         VList third = g->connections[second->v];
                         while(third != NULL){
                             if (third->type == RAIL)
