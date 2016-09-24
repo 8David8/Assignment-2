@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "GameView.h"
 #include "DracView.h"
+<<<<<<< HEAD
 
 #define DEATH 0
 #define FIRST_ROUND 0
@@ -84,12 +85,10 @@ DracView newDracView(char *pastPlays, PlayerMessage messages[])
                    dView->trapsAndVamp[updatedLocation][TRAP_INDEX]--;
                } else if (pastPlays[encounterIndex+2] == 'V') {
                    dView->trapsAndVamp[updatedLocation][VAMP_INDEX]--;
-
                }
             }            
         }
     }
-
    return dView;
 }
      
@@ -204,7 +203,6 @@ void lastMove(DracView currentView, PlayerID player,
 void whatsThere(DracView currentView, LocationID where,
                          int *numTraps, int *numVamps)
 {
-    //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     if (where == SEA || where == UNKNOWN_LOCATION) {
         *numTraps = 0;
         *numVamps = 0;
@@ -212,6 +210,38 @@ void whatsThere(DracView currentView, LocationID where,
         *numTraps = currentView->trapsAndVamp[where][TRAP_INDEX];
         *numVamps = currentView->trapsAndVamp[where][VAMP_INDEX];
     }
+/*
+ Helen's work
+    int i = 0;
+    while (i < strlen(currentView->pastPlays)) {
+        if ((i % 40) > 31) {
+            if ((i % 40) % 8 == 3) {
+                if (currentView->pastPlays[i] == 'T') {
+                    currentView->traps[whereIs(currentView, (i % 40)/8)]--;
+                } else if (currentView->pastPlays[i+1] == 'V') {
+                    currentView->vamps[whereIs(currentView, (i % 40) / 8)]--;
+                }
+            }
+        } else {
+            if ((i % 40) % 8 == 3) {
+                if (currentView->pastPlays[i] == 'T') {
+                    currentView->traps[whereIs(currentView, (i % 40)/8)]++;
+                } else if (currentView->pastPlays[i+1] == 'V') {
+                    currentView->vamps[whereIs(currentView, (i % 40) / 8)]++;
+                }
+            } else if ((i % 40)% 8 == 6) {
+                if (currentView->pastPlays[i] == 'M') { //trap left trail
+                    currentView->traps[abbrevToID(&currentView->pastPlays[i - 244])]-=1;
+                } else if (currentView->pastPlays[i]=='V') { //mature vampire
+                    currentView->vamps[abbrevToID(&currentView->pastPlays[i - 244])]-=1;
+                }
+            }
+        }
+        i++;
+    
+    *numTraps = currentView->traps[where];
+    *numVamps = currentView->vamps[where];
+    */
 }
 
 //// Functions that return information about the history of the game
@@ -231,7 +261,7 @@ LocationID *whereCanIgo(DracView currentView, int *numLocations, int road, int s
     LocationID draculaLocation = whereIs(currentView, PLAYER_DRACULA);
     int currentRound = giveMeTheRound(currentView); //retrieves the current round from the round function
 
-/*
+/* Helen's work
     if (currentRound == 0) { //Case 1 - Round 0, Dracula is always last to move and he cannot move to ST_JOSEPH_AND_ST_MARYS
         LocationID *place = malloc(sizeof(LocationID)*NUM_MAP_LOCATIONS);
         int i;
@@ -239,7 +269,7 @@ LocationID *whereCanIgo(DracView currentView, int *numLocations, int road, int s
         while (i < NUM_MAP_LOCATIONS) {
             if (i != ST_JOSEPH_AND_ST_MARYS) {
                 place[*numLocations++] = i;
-                return place;
+                
             } 
             i++;
         }
@@ -256,17 +286,17 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
     LocationID hunterLocation = whereIs(currentView, player);
     int currentRound = giveMeTheRound(currentView); //retrieves the current round from the round function
 
-    
     /*
-    if (currentRound = 0) { //Case 1 - Round 0, where player has not made a move, therefore can move anywhere to start
+    if (currentRound == 0) { //Case 1 - Round 0, where player has not made a move, therefore can move anywhere to start
         LocationID *place = malloc(sizeof(LocationID)*NUM_MAP_LOCATIONS);
         int i;
 
         while (i < NUM_MAP_LOCATIONS) {
             place[*numLocations++] = i;
-            return place;
+            i++;
         }
-        i++;
+        
+        return place;
     } 
 */
     return connectedLocations(currentView->gState, numLocations,
