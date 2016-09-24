@@ -6,11 +6,16 @@
 #include "Game.h"
 #include "GameView.h"
 #include "DracView.h"
+#include "Map.h"
+#include "string.h"
 // #include "Map.h" ... if you decide to use the Map ADT
      
 struct dracView {
     GameView gameState; //takes all the repetitive round, score, playerinfo etc. from GameView
     Map mapState; //gets the graph of the board from Map
+    LocationID traps[NUM_MAP_LOCATIONS];
+    LocationID vamps[NUM_MAP_LOCATIONS];
+    char *pastPlays;
 };
      
 
@@ -20,7 +25,15 @@ DracView newDracView(char *pastPlays, PlayerMessage messages[])
     DracView dracView = malloc(sizeof(struct dracView));
 
     dracView->gameState = newGameView (pastPlays, messages); //takes everything from newGameView
-    dracView->MapState = newMap (pastPlays, messages); //takes everything from Map
+    dracView->mapState = newMap (pastPlays, messages); //takes everything from Map
+    dracView->pastPlays = pastPlays;
+
+    int index = 0;
+
+    while (index < NUM_MAP_LOCATIONS) {
+        dracView->traps[index] = 0;
+        dracView->vamps[index] = 0;
+    }
 
     return dracView;
 }
@@ -29,6 +42,8 @@ DracView newDracView(char *pastPlays, PlayerMessage messages[])
 // Frees all memory previously allocated for the DracView toBeDeleted
 void disposeDracView(DracView toBeDeleted)
 {
+    disposeGameView (toBeDeleted->gameState);
+    disposeMap (toBeDeleted->mapState);
     free (toBeDeleted);
     toBeDeleted = NULL;
 }
@@ -66,7 +81,7 @@ void lastMove(DracView currentView, PlayerID player,
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
     LocationID playerTrail[TRAIL_SIZE];
-    giveMeTheTrail(currentView->trail, player, playerTrail);
+    giveMeTheTrail(currentView, player, playerTrail);
 
     int currentRound = giveMeTheRound(currentView); //retrieves the current round from the round function
 
@@ -99,13 +114,36 @@ void whatsThere(DracView currentView, LocationID where,
                          int *numTraps, int *numVamps)
 {
     //REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-    if (where == SEA || where == UNKNOWN_LOCATION) {
-        *numTraps = 0;
-        *numVamps = 0;
-    } else {
-        *numTraps = ;
-        *numVamps = ;
+    int i = 0;
+    while (i < strlen(currentView->pastPlays)) {
+        if ((i % 40) > 31) {
+            if ((i % 40) % 8 == 3) {
+                if (currentView->pastPlays[i] == 'T') {
+                    currentView->traps[whereIs(currentView, (i % 40)/8)]--;
+                } else if (currentView->pastPlays[i+1] == 'V') {
+                    currentView->vamps[whereIs(currentView, (i % 40) / 8)]--;
+                }
+            }
+        } else {
+            if ((i % 40) % 8 == 3) {
+                if (currentView->pastPlays[i] == 'T') {
+                    currentView->traps[whereIs(currentView, (i % 40)/8)]++;
+                } else if (currentView->pastPlays[i+1] == 'V') {
+                    currentView->vamps[whereIs(currentView, (i % 40) / 8)]++;
+                }
+            } else if ((i % 40)% 8 == 6) {
+                if (currentView->pastPlays[i] == 'M') { //trap left trail
+                    currentView->traps[abbrevToID(&currentView->pastPlays[i - 244])]-=1;
+                } else if (currentView->pastPlays[i]=='V') { //mature vampire
+                    currentView->vamps[abbrevToID(&currentView->pastPlays[i - 244])]-=1;
+                }
+            }
+        }
+        i++;
     }
+    
+    *numTraps = currentView->traps[where];
+    *numVamps = currentView->vamps[where];
 }
 
 //// Functions that return information about the history of the game
@@ -133,12 +171,13 @@ LocationID *whereCanIgo(DracView currentView, int *numLocations, int road, int s
         while (i < NUM_MAP_LOCATIONS) {
             if (i != ST_JOSEPH_AND_ST_MARYS) {
                 place[*numLocations++] = i;
-                return place;
+                
             } 
             i++;
         }
-
-    return connectedLocations(currentView->gameState, *numLocations, draculaLocation, PLAYER_DRACULA, road, 0, sea);
+        return place;
+    }
+    return connectedLocations(currentView->gameState, numLocations, draculaLocation, PLAYER_DRACULA, currentRound, road, 0, sea);
 }
 
 // What are the specified player's next possible moves
@@ -150,16 +189,17 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
 
     int currentRound = giveMeTheRound(currentView); //retrieves the current round from the round function
 
-    if (currentRound = 0) { //Case 1 - Round 0, where player has not made a move, therefore can move anywhere to start
+    if (currentRound == 0) { //Case 1 - Round 0, where player has not made a move, therefore can move anywhere to start
         LocationID *place = malloc(sizeof(LocationID)*NUM_MAP_LOCATIONS);
         int i;
 
         while (i < NUM_MAP_LOCATIONS) {
             place[*numLocations++] = i;
-            return place;
+            i++;
         }
-        i++;
+        
+        return place;
     } 
 
-    return connectedLocations(currentView->gameState, *numLocations, hunterLocation, player, road, rail, sea);
+    return connectedLocations(currentView->gameState, numLocations, hunterLocation, player, currentRound, road, rail, sea);
 }
