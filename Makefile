@@ -19,6 +19,7 @@ set.o : set.c set.h
 GameView.o : GameView.c GameView.h
 HunterView.o : HunterView.c HunterView.h
 DracView.o : DracView.c DracView.h
+queue.o : queue.c queue.h
 
 clean :
 	rm -f $(BINS) *.o core
