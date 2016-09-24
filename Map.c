@@ -9,6 +9,9 @@
 #include "Places.h"
 #include "Globals.h"
 
+#define TRUE 1
+#define FALSE 0
+
 typedef struct vNode *VList;
 
 struct vNode {
@@ -146,13 +149,13 @@ int *getConnections(LocationID from, int player, int round,
 
     Map g = newMap();
 
-    // the maximum distance that can be moved via rail 
-    // is determined by the sum of the round number (0..366) 
+    // the maximum distance that can be moved via rail
+    // is determined by the sum of the round number (0..366)
     // and the Hunter number (0..3)
     int railLink = (round + player) % 4;
     // Dracula hates trains so he cant move be train
     if (railLink == 0 || player == PLAYER_DRACULA){
-        railLink = FALSE;
+        rail = FALSE;
     }
     VList curr = g->connections[from];
     while (curr != NULL){
@@ -174,10 +177,9 @@ int *getConnections(LocationID from, int player, int round,
                             if (third->type == RAIL)
                                 reachable[third->v] = TRUE;
                         }
-                    }
-                    break;
+                    } break;
             }
-        }   
+        }
         if (sea == TRUE && curr->type == BOAT)
             reachable[curr->v] = TRUE;
         if (road == TRUE && curr->type == ROAD)
