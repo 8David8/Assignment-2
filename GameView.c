@@ -128,7 +128,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
                 // Dracula is hiding
                 // push the most recent location onto the trail
-                // because hiding simply means the dracula is staying in the same place
+                // because hiding simply means Dracula is staying in the same place
                 // as he was in his previous move
                 } else if (newLocation[0] == 'H') {
                      pushLocationToTrail(gView, PLAYER_DRACULA, gView->playerStats[PLAYER_DRACULA].trail[TRAIL_SIZE-1]);
@@ -148,7 +148,8 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                      // we also have to account for the -1 value
                      // which is UNKNOWN LOCATION
                      } else if (backTrackDest == UNKNOWN_LOCATION) { atSea = FALSE; atCastle = FALSE;
-                     // else we know its an exact location between 0 < x < 70
+                     // else we know its an exact location 
+                     // valid location IDs ranges: 0 < x < 70
                      // and therefore we can use idToType to validate places
                      } else {
                          if (isSea(backTrackDest)) { atSea = TRUE; atCastle = FALSE;
@@ -187,12 +188,9 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
                 gView->playerStats[PLAYER_DRACULA].health += LIFE_GAIN_CASTLE_DRACULA;
             }
 
-            if (pastPlays[index+5] == 'M') {
-                //?????
-                printf("hi\n");
             // a vampire has just matured
             // and therefore the score is reduced by 13
-            } else if (pastPlays[index+5] == 'V') {
+            if (pastPlays[index+5] == 'V') {
                 gView->score -= SCORE_LOSS_VAMPIRE_MATURES;
             }
 
