@@ -378,7 +378,6 @@ void getHistory(GameView currentView, PlayerID player,
 // --- Functions that query the map to find information about connectivity ---
 // ---------------------------------------------------------------------------
 
-
 // Returns an array of LocationIDs for all directly connected locations
 LocationID *connectedLocations(GameView currentView, int *numLocations,
                                LocationID from, PlayerID player, Round round,
@@ -391,8 +390,12 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     assert(validPlace(from)); //function from places.h
    
     //int connections[NUM_MAP_LOCATIONS] = {FALSE};
-
     //initialise an array to return and hold the possible locations
+    
+    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+    getConnections(from, player, round, road, rail, sea);
+
+
     //LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
 
     return 0; 

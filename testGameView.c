@@ -84,9 +84,11 @@ int main()
     printf("passed\n");
     disposeGameView(gv);
 
+    // Testing for connections
     printf("Test for connections\n");
     int size, seen[NUM_MAP_LOCATIONS], *edges;
     gv = newGameView("", messages1);    
+
     printf("Checking Galatz road connections\n");
     edges = connectedLocations(gv,&size,GALATZ,PLAYER_LORD_GODALMING,0,1,0,0);
     memset(seen, 0, NUM_MAP_LOCATIONS*sizeof(int));
@@ -94,6 +96,7 @@ int main()
     assert(size == 5); assert(seen[GALATZ]); assert(seen[CONSTANTA]);
     assert(seen[BUCHAREST]); assert(seen[KLAUSENBURG]); assert(seen[CASTLE_DRACULA]);
     free(edges);
+
     printf("Checking Ionian Sea sea connections\n");
     edges = connectedLocations(gv,&size,IONIAN_SEA,PLAYER_LORD_GODALMING,0,0,0,1);
     memset(seen, 0, NUM_MAP_LOCATIONS*sizeof(int));
@@ -102,6 +105,7 @@ int main()
     assert(seen[ADRIATIC_SEA]); assert(seen[TYRRHENIAN_SEA]);
     assert(seen[ATHENS]); assert(seen[VALONA]); assert(seen[SALONICA]);
     free(edges);
+
     printf("Checking Athens rail connections (none)\n");
     edges = connectedLocations(gv,&size,ATHENS,PLAYER_LORD_GODALMING,0,0,1,0);
     assert(size == 1);

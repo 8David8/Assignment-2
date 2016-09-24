@@ -71,23 +71,23 @@ static VList insertVList(VList L, LocationID v, TransportID type)
 
 static int inVList(VList L, LocationID v, TransportID type)
 {
-        VList cur;
-        for (cur = L; cur != NULL; cur = cur->next) {
-                if (cur->v == v && cur->type == type) return 1;
-        }
-        return 0;
+   VList cur;
+   for (cur = L; cur != NULL; cur = cur->next) {
+       if (cur->v == v && cur->type == type) return 1;
+   }
+   return 0;
 }
 
 // Add a new edge to the Map/Graph
 void addLink(Map g, LocationID start, LocationID end, TransportID type)
 {
-        assert(g != NULL);
-        // don't add edges twice
-        if (!inVList(g->connections[start],end,type)) {
-        g->connections[start] = insertVList(g->connections[start],end,type);
-        g->connections[end] = insertVList(g->connections[end],start,type);
-        g->nE++;
-        }
+   assert(g != NULL);
+   // don't add edges twice
+   if (!inVList(g->connections[start],end,type)) {
+      g->connections[start] = insertVList(g->connections[start],end,type);
+      g->connections[end] = insertVList(g->connections[end],start,type);
+      g->nE++;
+   }
 }
 
 // Display content of Map/Graph
@@ -132,6 +132,60 @@ int numE(Map g, TransportID type)
       }
     }
     return nE;
+}
+
+
+int getConnections(LocationID from, PlayerID player, Round round,
+                   int road, int rail, int sea){
+    //initialise an array to return and hold the possible locations
+    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+    int j;
+    for (j = 0; j < NUM_MAP_LOCATIONS; j++)
+        reachable[j] = 0;
+    reachable[from] = TRUE;
+
+    Map g = newMap();
+
+    // the maximum distance that can be moved via rail 
+    // is determined by the sum of the round number (0..366) 
+    // and the Hunter number (0..3)
+    int rail = (round + player) % 4;
+    // Dracula hates trains so he cant move be train
+    if (rail == 0 || player == PLAYER_DRACULA){
+        rail = FALSE;
+    }
+    VList curr = g->connections[from];
+    while (curr != NULL){
+        if (rail == TRUE && curr->type == RAIL){
+            VList second = g->connections[curr->v];
+            switch(rail){
+                case 1: reachable[curr->v] = 1; break;
+                default:
+                    //Find cities located 2 links away if rail = 2
+                    while(second != NULL){
+                        if (second->type == RAIL)
+                            reachable[second->v] = 1;
+                    }
+                    //Find cities located 3 links away if rail = 3
+                    if (rail == 3){
+                        second = g->connections[curr->v];
+                        VList third = g->connections[second->v];
+                        while(third != NULL){
+                            if (third->type == RAIL)
+                                reachable[third->v] = 1;
+                        }
+                    }
+                    break;
+            }
+        }   
+        if (sea == TRUE && curr->type == BOAT)
+            reachable[curr->v] = TRUE;
+        if (road == TRUE && curr->type == ROAD)
+            reachable[curr->v] = TRUE;
+        curr = curr->next;
+        }
+    }
+    return reachable;
 }
 
 // Add edges to Graph representing map of Europe
