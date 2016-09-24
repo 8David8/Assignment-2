@@ -208,11 +208,16 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 
             // check if there were any encounters and let the game play accordingly
             // Note: encounters should only take place if the hunter or dracula is not dead
+            // the loop below will re-iterate 3 times for each corresponding encounter
             int encounterIndex;
             for (encounterIndex = STARTING_INDEX_FOR_ENCOUNTERS; encounterIndex < NUM_CHAR_PER_PLAY &&
                 gView->playerStats[currHunter].health > DEATH &&
                 gView->playerStats[PLAYER_DRACULA].health > DEATH; encounterIndex++) {
-                if (pastPlays[index+encounterIndex] == 'D') {
+                // Hunter encountered a trap
+                if (pastPlays[index+encounterIndex] == 'T') {
+                    gView->playerStats[currHunter].health -= LIFE_LOSS_TRAP_ENCOUNTER;
+                // Hunter encountered Dracula
+                } else if (pastPlays[index+encounterIndex] == 'D') {
                     gView->playerStats[currHunter].health -= LIFE_LOSS_DRACULA_ENCOUNTER;
                     gView->playerStats[PLAYER_DRACULA].health -= LIFE_LOSS_HUNTER_ENCOUNTER;
                 }
@@ -388,23 +393,29 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     assert(player >= 0 && player < NUM_PLAYERS);
     assert(validPlace(from)); //function from places.h
 
-    //initialise an array to return and hold the possible locations
+    // initialise an array to return and hold the current connected locations
+    // reachable in essense is a boolean array which contains 1s and 0s
+    // where the elements are the location and 
+    // - 1: represents connected
+    // - 0: represents not connected
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
     reachable = getConnections(from, player, round, road, rail, sea);
 
     //Count how many locations are connected
     int cityid;
     int numConnections = 0;
-    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++){
+    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++) {
         if (reachable[cityid] == 1)
             numConnections++;
     }
     *numLocations = numConnections;
-    //Now form an array that can hold the locations connected
+    // Now form an array that can hold the locations connected
+    // Note that we are referring to the actual Location IDs 
+    // of all the available connections
     LocationID *connected = malloc(sizeof(int) * numConnections);
     int counter = 0;
-    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++){
-        if(reachable[cityid] != 0)
+    for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++) {
+        if (reachable[cityid] != 0)
             connected[counter++] = cityid;
     }
 

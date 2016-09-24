@@ -88,7 +88,7 @@ LocationID *whereCanIgo(HunterView currentView, int *numLocations,
     int health = howHealthyIs(currentView, hunter);
 
     // if the hunters are dead, then obviously their location is at the hospital lol
-    if (health == 0) {
+    if (health == DEATH) {
         return connectedLocations(currentView->gState, numLocations,
                                   ST_JOSEPH_AND_ST_MARYS, hunter,
                                   round, road, rail, sea);

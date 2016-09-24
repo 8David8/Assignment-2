@@ -158,8 +158,8 @@ int *getConnections(LocationID from, PlayerID player, Round round,
         rail = FALSE;
     }
     VList curr = g->connections[from];
-    while (curr != NULL){
-        if (rail == TRUE && curr->type == RAIL){
+    while (curr != NULL) {
+        if (rail == TRUE && curr->type == RAIL) {
             VList second = g->connections[curr->v];
             switch (railLink) {
                 case 1: reachable[curr->v] = TRUE; break;
@@ -187,6 +187,13 @@ int *getConnections(LocationID from, PlayerID player, Round round,
         curr = curr->next;
         
     }
+
+    // Dracula hates the hospital because theres too many crucifixes
+    // so are possible connections are rectified to not connected
+    if (player == PLAYER_DRACULA) {
+       reachable[ST_JOSEPH_AND_ST_MARYS] = 0;
+    } 
+
     return reachable;
 }
 
