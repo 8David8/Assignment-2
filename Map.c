@@ -138,7 +138,7 @@ int numE(Map g, TransportID type)
     return nE;
 }
 
-int *getConnections(LocationID from, int player, int round,
+int *getConnections(LocationID from, PlayerID player, Round round,
                    int road, int rail, int sea){
     //initialise an array to return and hold the possible locations
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);

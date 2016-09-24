@@ -199,7 +199,7 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
         // current character is a hunter
         } else {
             PlayerID currHunter = currCharacter;
-
+            
             // if hunter was at the hospital and he was dead, revive him and restore him to full health
             if (getLocation(gView, currHunter) == ST_JOSEPH_AND_ST_MARYS &&
                 getHealth(gView, currHunter) == DEATH) {
@@ -251,7 +251,6 @@ GameView newGameView(char *pastPlays, PlayerMessage messages[])
 // Frees all memory previously allocated for the GameView toBeDeleted
 void disposeGameView(GameView toBeDeleted)
 {
-    //COMPLETE THIS IMPLEMENTATION
     free(toBeDeleted);
     toBeDeleted = NULL;
 }
@@ -389,9 +388,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     assert(player >= 0 && player < NUM_PLAYERS);
     assert(validPlace(from)); //function from places.h
 
-    //int connections[NUM_MAP_LOCATIONS] = {FALSE};
     //initialise an array to return and hold the possible locations
-
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
     reachable = getConnections(from, player, round, road, rail, sea);
 
@@ -414,63 +411,3 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     return connected;
 }
 
-/*
-// Returns an array of LocationIDs for all directly connected locations
-LocationID *connectedLocations(GameView currentView, int *numLocations,
-                               LocationID from, PlayerID player, Round round,
-                               int road, int rail, int sea)
-{
-    //Check if all inputs are valid
-    assert(currentView != NULL);
-    assert(numLocations != NULL);
-    assert(player >= 0 && player < NUM_PLAYERS);
-    assert(validPlace(from)); //function from places.h
-
-    //initialise an array to return and hold the possible locations
-    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
-    int j;
-    for (j = 0; j < NUM_MAP_LOCATIONS; j++)
-        reachable[j] = 0;
-    reachable[from] = TRUE;
-
-    Map g = newMap();
-
-    int i = (round + player)%4; //sum of roudns + player mod 4
-    if (i == 0 || player == PLAYER_DRACULA){
-        rail = FALSE;
-    }
-    VList curr = g->connections[from];
-    while (curr != NULL){
-        if (rail == TRUE && curr->type == RAIL){
-            VList second = g->connections[curr->v];
-            switch(i){
-                case 1: reachable[curr->v] = 1; break;
-                default:
-                    //Find the cities located 2 links away if i = 2
-                    while(second != NULL){
-                        if (second->type == RAIL)
-                            reachable[second->v] = 2;
-                    }
-                    //Find cities located 3 links away if i = 3
-                    if (i == 3){
-                        second = g->connections[curr->v];
-                        VList third = g->connections[second->v];
-                        while(third != NULL){
-                            if (third->type == RAIL)
-                                reachable[third->v] = 3;
-                        }
-                    }
-                    break;
-                }
-        }
-        if (sea == TRUE && curr->type == BOAT)
-            reachable[curr->v] = TRUE;
-        if (road == TRUE && curr->type == ROAD)
-            reachable[curr->v] = TRUE;
-        curr = curr->next;
-        }
-    }
-    return 0;
-    //return reachable;
-}
-*/
