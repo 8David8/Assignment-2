@@ -368,7 +368,7 @@ void getHistory(GameView currentView, PlayerID player,
     assert(trail != NULL);
 
     int trailIndex;
-    for (trailIndex = 0; i < TRAIL_SIZE; trailIndex++)
+    for (trailIndex = 0; trailIndex < TRAIL_SIZE; trailIndex++)
         trail[trailIndex] = currentView->playerStats[player].trail[trailIndex];
 }
 
@@ -393,6 +393,8 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     // - 1: represents connected
     // - 0: represents not connected
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
+
+    // getConnections function is implemented in Map.c, its interface is in Map.h
     reachable = getConnections(from, player, round, road, rail, sea);
 
     //Count how many locations are connected

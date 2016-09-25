@@ -210,6 +210,10 @@ LocationID *whereCanIgo(DracView currentView, int *numLocations, int road, int s
 {
     LocationID draculaLocation = whereIs(currentView, PLAYER_DRACULA);
     int currentRound = giveMeTheRound(currentView); // retrieves the current round from the round function
+
+    return connectedLocations(currentView->gState, numLocations,
+                              draculaLocation, PLAYER_DRACULA,
+                              currentRound, road, NO_RAIL, sea);
 }
 
 // What are the specified player's next possible moves
