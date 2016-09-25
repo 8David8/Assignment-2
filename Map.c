@@ -145,6 +145,8 @@ int *getConnections(LocationID from, PlayerID player, Round round,
     int j;
     for (j = 0; j < NUM_MAP_LOCATIONS; j++)
         reachable[j] = 0;
+
+    // a location should always be connected to itself
     reachable[from] = TRUE;
 
     Map g = newMap();
