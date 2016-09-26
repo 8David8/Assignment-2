@@ -140,12 +140,9 @@ int numE(Map g, TransportID type)
 
 int *getConnections(LocationID from, PlayerID player, Round round,
                    int road, int rail, int sea){
-    //initialise an array to return and hold the possible locations
-    LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
-    int j;
-    for (j = 0; j < NUM_MAP_LOCATIONS; j++)
-        reachable[j] = 0;
-
+    // initialise an array to return and hold the possible locations
+    LocationID *reachable = calloc(NUM_MAP_LOCATIONS, sizeof(int));
+    
     // a location should always be connected to itself
     reachable[from] = TRUE;
 

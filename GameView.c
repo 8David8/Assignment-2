@@ -414,7 +414,8 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
 
     // initialise an array to return and hold the current connected locations
     // reachable in essense is a boolean array which contains 1s and 0s
-    // where the elements are the location and 
+    // where the element number in the array represents a location 
+    // and the index which can contain numbers 1 and 0 where
     // - 1: represents connected
     // - 0: represents not connected
     LocationID *reachable = malloc(sizeof(int) * NUM_MAP_LOCATIONS);
@@ -422,7 +423,7 @@ LocationID *connectedLocations(GameView currentView, int *numLocations,
     // getConnections function is implemented in Map.c, its interface is in Map.h
     reachable = getConnections(from, player, round, road, rail, sea);
 
-    //Count how many locations are connected
+    // Count how many locations are connected
     int cityid;
     int numConnections = 0;
     for (cityid = 0; cityid < NUM_MAP_LOCATIONS; cityid++) {
