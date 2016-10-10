@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include "Map.h"
 #include "Places.h"
+#include "Globals.h"
+
+#define TRUE 1
+#define FALSE 0
 
 typedef struct vNode *VList;
 
@@ -71,23 +75,23 @@ static VList insertVList(VList L, LocationID v, TransportID type)
 
 static int inVList(VList L, LocationID v, TransportID type)
 {
-        VList cur;
-        for (cur = L; cur != NULL; cur = cur->next) {
-                if (cur->v == v && cur->type == type) return 1;
-        }
-        return 0;
+   VList cur;
+   for (cur = L; cur != NULL; cur = cur->next) {
+       if (cur->v == v && cur->type == type) return 1;
+   }
+   return 0;
 }
 
 // Add a new edge to the Map/Graph
 void addLink(Map g, LocationID start, LocationID end, TransportID type)
 {
-        assert(g != NULL);
-        // don't add edges twice
-        if (!inVList(g->connections[start],end,type)) {
-        g->connections[start] = insertVList(g->connections[start],end,type);
-        g->connections[end] = insertVList(g->connections[end],start,type);
-        g->nE++;
-        }
+   assert(g != NULL);
+   // don't add edges twice
+   if (!inVList(g->connections[start],end,type)) {
+      g->connections[start] = insertVList(g->connections[start],end,type);
+      g->connections[end] = insertVList(g->connections[end],start,type);
+      g->nE++;
+   }
 }
 
 // Display content of Map/Graph
@@ -132,6 +136,83 @@ int numE(Map g, TransportID type)
       }
     }
     return nE;
+}
+
+int *getConnections(LocationID from, PlayerID player, Round round,
+                   int road, int rail, int sea){
+    // initialise an array to return and hold the possible locations
+    LocationID *reachable = calloc(NUM_MAP_LOCATIONS, sizeof(int));
+    
+    // a location should always be connected to itself
+    reachable[from] = TRUE;
+
+    Map g = newMap();
+
+    // the maximum distance that can be moved via rail
+    // is determined by the sum of the round number (0..366)
+    // and the Hunter number (0..3)
+    int railLink = (round + player) % 4;
+    // Dracula hates trains so he cant move be train
+    // if railLink is 0 (FALSE), Hunters are not allowed to move by train for this turn
+    if (railLink == FALSE || player == PLAYER_DRACULA){
+        rail = FALSE;
+    }
+
+    // example of how an array of linked list works
+    // and how the game uses an array of linked list to store connections: 
+    /*
+       (ALICANTE)->[GRANADA, ROAD]->[MADRID, ROAD]->[SARAGOSSA, ROAD]->[BARCELONA, RAIL]->[MADRID, RAIL]->[MEDITERRANEAN_SEA, BOAT]->X
+       (AMSTERDAM)->[BRUSSELS, ROAD]->[COLOGNE, ROAD]->[NORTH_SEA, BOAT]->X
+       (ATHENS)->[VALONA, ROAD]->[IONIAN_SEA]->X
+    */
+    // where the parantheses represents the index of arrays, min index in 0, max index is 70
+    // and brackets represents the link lists
+    // v refers the the locations in the linked lists (connected locations)
+    // type refers to the type of transport: ROAD, RAIL, BOAT
+    VList curr = g->connections[from];
+    while (curr != NULL) {
+        if (rail == TRUE && curr->type == RAIL) {
+            // hunters can only move to any adjacent city to the current city
+            // via RAIL
+            if (railLink == 1) {
+                reachable[curr->v] = TRUE;
+            // else there are more than one possible adjacent move via Rail
+            // and hence Hunters can move to any city adjacent to the current city
+            // or any city adjacent to that one or any adjacent city to the adjacent 
+            // city of the current city (This is confusing to explain... lol)
+            } else {
+                //Find cities located 2 rail links away if rail = 2
+                VList secondLink = g->connections[curr->v];
+                while(secondLink != NULL) {
+                    if (secondLink->type == RAIL)
+                        reachable[secondLink->v] = TRUE;
+                }
+                //Find cities located 3 rail links away if rail = 3
+                if (railLink == 3) {
+                    secondLink = g->connections[curr->v];
+                    VList thirdLink = g->connections[secondLink->v];
+                    while (thirdLink != NULL) {
+                        if (thirdLink->type == RAIL)
+                            reachable[thirdLink->v] = TRUE;
+                    }
+                }
+            }
+        }
+        if (sea == TRUE && curr->type == BOAT)
+            reachable[curr->v] = TRUE;
+        if (road == TRUE && curr->type == ROAD)
+            reachable[curr->v] = TRUE;
+        curr = curr->next; 
+    }
+
+    // Dracula hates the hospital because theres too many crucifixes
+    // so any possible connection to St Joseph and Marys hospital by Dracula
+    // is canceled
+    if (player == PLAYER_DRACULA) {
+       reachable[ST_JOSEPH_AND_ST_MARYS] = 0;
+    } 
+
+    return reachable;
 }
 
 // Add edges to Graph representing map of Europe
