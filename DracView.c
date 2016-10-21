@@ -80,6 +80,8 @@ DracView newDracView(char *pastPlays, PlayerMessage messages[])
             }
         // else its the hunter's turn :D
         } else {
+            // POSSIBLE BUG: encounters only happen if the hunter's health is greater than 0
+            // DracView is not keeping track of the hunter's health PER TURN so we might run into a bug
             int encounterIndex;
             // we have to loop through the encounters 4 times (NUM_CHAR_ENCOUNTER_HUNTER) 
             // because there is a possibility that a hunter could go 
