@@ -55,11 +55,11 @@ void decideHunterMove(HunterView gameState)
         if (!validPlace(hunterLastLocation)) { hunterLastLocation = currPos; } 
         if (validPlace(dracLastLocation)) { 
             printf("finding closest path to target (dracLastLocation)\n");
-            closestMoveToDrac = findLocationClosestToTarget(currPos, dracLastLocation, rail, &distanceToDest);
+            closestMoveToDrac = findLocationClosestToTarget(currPos, dracLastLocation, rail, &distanceToDest, possibleMoves, numLocations);
         } 
         if (validPlace(dracPos)) {
             printf("finding closest path to target (dracPos)\n");
-            closestMoveToDrac = findLocationClosestToTarget(currPos, dracPos, rail, &distanceToDest);
+            closestMoveToDrac = findLocationClosestToTarget(currPos, dracPos, rail, &distanceToDest, possibleMoves, numLocations);
         }
 
         int isSeaMoveAvailable = FALSE; int isLandMoveAvailable = FALSE;
@@ -126,6 +126,7 @@ void decideHunterMove(HunterView gameState)
         printf("chosenMove = [%d][%s]\n", chosenMove, idToAbbrev(chosenMove));
         printf("numLocations = [%d]", numLocations);
         registerBestPlay(idToAbbrev(chosenMove), "");
+        free(possibleMoves);
     }
 }
 

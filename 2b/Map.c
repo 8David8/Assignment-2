@@ -198,7 +198,7 @@ int numE(Map g, TransportID type)
 
 //-------------------------------------MY FUNCTIONS-------------------------------------
 
-LocationID findLocationClosestToTarget(LocationID src, LocationID dest, int rail, int *distance) 
+LocationID findLocationClosestToTarget(LocationID src, LocationID dest, int rail, int *distance, LocationID *possibleMoves, int numLocations) 
 {
     Map g = newMap(); 
     // declare and initialise an array of integers and set them all to have the value zero
@@ -212,6 +212,16 @@ LocationID findLocationClosestToTarget(LocationID src, LocationID dest, int rail
     visited[src] = 1;  // the starting location should always be visited
     int isFound = 0;
     int counter = 0; // number of cities before arriving at destination
+
+    printf("initialising upgraded BFS :D\n");
+    int l; LocationID possibleLoc;
+    for (l = 0; l < numLocations; l++) {
+        possibleLoc = possibleMoves[l];
+        pathes[possibleLoc] = src;
+        if (possibleLoc == dest) { isFound = TRUE; break; }
+        QueueJoin(q, possibleLoc); 
+        visited[possibleLoc] = 1;
+    }
 
     LocationID x;
     while (!QueueIsEmpty(q) && !isFound) {

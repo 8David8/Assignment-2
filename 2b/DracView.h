@@ -136,7 +136,4 @@ LocationID *whereCanIgo(DracView view, int *numLocations, int road, int sea);
 LocationID *whereCanTheyGo(DracView view, int *numLocations,
                            PlayerID player, int road, int rail, int sea);
 
-LocationID *connectedLocationsForDrac(DracView currentView, int *numLocations,
-                               LocationID from, PlayerID player, Round round,
-                               int road, int rail, int sea);
 #endif

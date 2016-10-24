@@ -12,9 +12,7 @@
 #include "Map.h"
 #include "Places.h"
 
-#define validPlayer(p) ((p) >= PLAYER_LORD_GODALMING && (p) <= PLAYER_DRACULA)
 // Representation of Dracula's view of the game
-
 struct dracView {
     GameView game;
     LocationID myTrail[TRAIL_SIZE]; // real locations
@@ -35,11 +33,11 @@ static void setMyTrail(char *pastPlays, LocationID *myTrail)
         LocationID realLoc;
         if      (p[1] == 'T' && p[2] == 'P') realLoc = CASTLE_DRACULA;
         else if (p[1] == 'H' && p[2] == 'I') realLoc = myTrail[0];
-        else if (p[1] == 'D' && p[2] == '1') realLoc = myTrail[1];
-        else if (p[1] == 'D' && p[2] == '2') realLoc = myTrail[2];
-        else if (p[1] == 'D' && p[2] == '3') realLoc = myTrail[3];
-        else if (p[1] == 'D' && p[2] == '4') realLoc = myTrail[4];
-        else if (p[1] == 'D' && p[2] == '5') realLoc = myTrail[5];
+        else if (p[1] == 'D' && p[2] == '1') realLoc = myTrail[0];
+        else if (p[1] == 'D' && p[2] == '2') realLoc = myTrail[1];
+        else if (p[1] == 'D' && p[2] == '3') realLoc = myTrail[2];
+        else if (p[1] == 'D' && p[2] == '4') realLoc = myTrail[3];
+        else if (p[1] == 'D' && p[2] == '5') realLoc = myTrail[4];
         else {
             // must be a real location
             char place[3] = { p[1], p[2], '\0' };
@@ -219,25 +217,3 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
                            road, rail, sea);
     return locations;
 }
-
-LocationID *connectedLocationsForDrac(DracView currentView, int *numLocations,
-                               LocationID from, PlayerID player, Round round,
-                               int road, int rail, int sea)
-{
-    assert(validPlace(from));
-    assert(validPlayer(player));
-
-    Map europe = newMap();
-    int drac = (player == PLAYER_DRACULA);
-    int railLength = (player + round) % 4;
-
-    if (!rail) railLength = 0;
-    if (drac) railLength = 0;
-
-    LocationID *res;
-	res = reachableLocations(europe, numLocations, from, drac, railLength, road, sea);
-    disposeMap(europe);
-    return res;
-}
-
-
