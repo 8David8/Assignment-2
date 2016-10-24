@@ -23,5 +23,6 @@ void showMap(Map g);
 int  numV(Map g);
 int  numE(Map g, TransportID t);
 LocationID *reachableLocations(Map map, int *numLocations, LocationID from, int drac, int railLength, int road, int sea);
+LocationID findLocationClosestToTarget(LocationID src, LocationID dest, int rail, int *distance);
 
 #endif

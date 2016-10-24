@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include "Map.h"
 #include "Places.h"
+#include "Queue.h"
+#include "Globals.h"
 
 typedef struct vNode *VList;
 
@@ -86,7 +88,7 @@ LocationID *reachableLocations(Map map, int *numLocations, LocationID from, int 
     int *reachable = calloc(NUM_MAP_LOCATIONS,sizeof (int));
 
     //setting the 'from' location as reachable
-    reachable[from] = 1;
+    //reachable[from] = 1;
 
     //for each connection that is by ROAD or SEA, set it to reachable
     //if road or sea is set to true
@@ -108,7 +110,7 @@ LocationID *reachableLocations(Map map, int *numLocations, LocationID from, int 
     for (i = 0; i < NUM_MAP_LOCATIONS; i++) {
         //don't allow dracula to go to the hospital
         if (reachable[i]) {
-            if (!(drac && i == ST_JOSEPH_AND_ST_MARYS)) {
+            if (!(drac && i == ST_JOSEPH_AND_ST_MARYS) && i != from) {
                 locations[index] = i;
                 index++;
             }
@@ -193,6 +195,84 @@ int numE(Map g, TransportID type)
     }
     return nE;
 }
+
+//-------------------------------------MY FUNCTIONS-------------------------------------
+
+LocationID findLocationClosestToTarget(LocationID src, LocationID dest, int rail, int *distance) 
+{
+    Map g = newMap(); 
+    // declare and initialise an array of integers and set them all to have the value zero
+    LocationID *visited = calloc(g->nV, sizeof(LocationID));
+    LocationID *pathes = malloc(g->nV * sizeof(LocationID)); 
+    LocationID *path = malloc(g->nV * sizeof(LocationID)); 
+    LocationID nextMove;
+
+    Queue q = newQueue();
+    QueueJoin(q, src); // add the first location (src) to the list (queue)  
+    visited[src] = 1;  // the starting location should always be visited
+    int isFound = 0;
+    int counter = 0; // number of cities before arriving at destination
+
+    LocationID x;
+    while (!QueueIsEmpty(q) && !isFound) {
+        x = QueueLeave(q); 
+
+        VList curr;
+        for (curr = g->connections[x]; curr != NULL; curr = curr->next) {
+            if (visited[curr->v]) { continue; }
+            else if (curr->type == RAIL && rail != TRUE) { continue; }
+
+            pathes[curr->v] = x; 
+
+            if (curr->v == dest) { isFound = TRUE; break; } 
+            if (visited[curr->v] == 0) {
+                visited[curr->v] = 1;
+                QueueJoin(q, curr->v);
+            }
+        }
+    }
+
+    // now we backtrack the pathes array to find a path leading from dest to src
+    LocationID v;
+    for (v = dest; v != src; v = pathes[v]) {
+        path[counter] = v;
+        counter++;
+    }
+    path[counter++] = src; 
+
+    // reverse the path array so it lists a path starting from src to dest
+    int max = counter-1; 
+    int i = 0; int temp;
+    while (i < max) {
+        temp = path[i];
+        path[i] = path[max];
+        path[max] = temp;
+        i++; max--;
+    }
+
+    printf("path from src to dest: ");
+    int j;
+    for (j = 0; j < counter-1; j++) {
+        printf("[%d]", path[j]);
+        printf("[%s]->", idToAbbrev(path[j]));
+    }
+    printf("[%d]", path[j]);
+    printf("[%s] ", idToAbbrev(path[j]));
+    printf("\n");
+
+    *distance = counter;
+    // returns the next move that would be closest to target
+    nextMove = path[1];
+    
+    // IMPORTANT: doing the steps below prevents segfault
+    // considering how large the arrays are and how the program runs continuously
+    disposeMap(g); g = NULL;
+    dropQueue(q); q = NULL;
+    free(visited); free(pathes); free(path);
+    visited = NULL; pathes = NULL; path = NULL;
+
+    return nextMove;
+} 
 
 // Add edges to Graph representing map of Europe
 static void addConnections(Map g)

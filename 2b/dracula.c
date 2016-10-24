@@ -11,6 +11,7 @@
 
 static int isHideInTrail(DracView gameState);
 static int isDoubleBackInTrail(DracView gameState);
+static int isReachable(DracView gameState, LocationID from, LocationID recentLoc, Round round);
 
 void decideDraculaMove(DracView gameState)
 {
@@ -24,11 +25,27 @@ void decideDraculaMove(DracView gameState)
 	        registerBestPlay("MU", "Mwuhahahaha");
         } else {
                 int numLocations = 0; 
-                int canHide = FALSE; int canDoubleBack = FALSE; int canTeleport = FALSE;
+                int canHide = TRUE; int canDoubleBack = TRUE; int canTeleport = FALSE;
                 // we set sea and road to be TRUE because
                 // we want to consider all possible Moves 
                 // on LAND and WATER for dracula
                 LocationID *legalMoves = whereCanIgo(gameState, &numLocations, TRUE, TRUE);
+                  
+                // used for debugging
+                int i;
+                for (i = 0; i < numLocations; i++){
+                        printf("[%s] ", idToAbbrev(legalMoves[i]));  
+                }
+                printf("\n");
+
+                int dracTrail[TRAIL_SIZE]; giveMeTheTrail(gameState, PLAYER_DRACULA, dracTrail);
+
+                int ti; printf("Drac's trail:");
+                for (ti = 0; ti < TRAIL_SIZE; ti++) {
+                        printf("[%d] ", dracTrail[ti]);
+                }
+                printf("\n");
+
                 // by now numLocations should be changed to an appropriate value
                 // which contains the number of legal possible moves 
                 // NOTE: numLocations only account for the number of possible moves
@@ -43,10 +60,10 @@ void decideDraculaMove(DracView gameState)
                 // check if Drac's trail contains a Double Back move  
                 if (isDoubleBackInTrail(gameState) == FALSE) {
                         canDoubleBack = TRUE; numOfLegalMoves++;
-                        if (currRound >= 2) {  numOfLegalMoves++; }
-                        if (currRound >= 3) {  numOfLegalMoves++; }
-                        if (currRound >= 4) {  numOfLegalMoves++; }
-                        if (currRound >= 5) {  numOfLegalMoves++; }
+                        if (currRound >= 2 && isReachable(gameState, dracLocation, dracTrail[1], currRound) == TRUE) { numOfLegalMoves++; }
+                        if (currRound >= 3 && isReachable(gameState, dracLocation, dracTrail[2], currRound) == TRUE) { numOfLegalMoves++; }
+                        if (currRound >= 4 && isReachable(gameState, dracLocation, dracTrail[3], currRound) == TRUE) { numOfLegalMoves++; }
+                        if (currRound >= 5 && isReachable(gameState, dracLocation, dracTrail[4], currRound) == TRUE) { numOfLegalMoves++; }
                 }    
                 // check if there are no legal moves available, 
                 // if so Dracula can teleport back to castle
@@ -58,6 +75,7 @@ void decideDraculaMove(DracView gameState)
                 // ambiguousMoves is an array that contains all possible ambiguous moves
                 // made by dracula. e.g. HIDE/DOUBLE_BACK_#/TELEPORT
                 LocationID *ambiguousMoves;
+
                 // e.g. if all ambiguous moves are available
                 // then total numOfAmbiguousMoves would be 7 
                 if (numOfLegalMoves > numLocations) {
@@ -67,13 +85,27 @@ void decideDraculaMove(DracView gameState)
                         if (canHide == TRUE) { ambiguousMoves[index] = HIDE; index++; }
                         if (canDoubleBack == TRUE) {
                                 ambiguousMoves[index] = DOUBLE_BACK_1; index++;
-                                if (currRound >= 2) { ambiguousMoves[index] = DOUBLE_BACK_2; index++; }
-                                if (currRound >= 3) { ambiguousMoves[index] = DOUBLE_BACK_3; index++; }
-                                if (currRound >= 4) { ambiguousMoves[index] = DOUBLE_BACK_4; index++; }
-                                if (currRound >= 5) { ambiguousMoves[index] = DOUBLE_BACK_5; index++; }
+                                if (currRound >= 2 && isReachable(gameState, dracLocation, dracTrail[1], currRound) == TRUE) { 
+                                        ambiguousMoves[index] = DOUBLE_BACK_2; index++; 
+                                }
+                                if (currRound >= 3 && isReachable(gameState, dracLocation, dracTrail[2], currRound) == TRUE) { 
+                                        ambiguousMoves[index] = DOUBLE_BACK_3; index++; 
+                                }
+                                if (currRound >= 4 && isReachable(gameState, dracLocation, dracTrail[3], currRound) == TRUE) { 
+                                        ambiguousMoves[index] = DOUBLE_BACK_4; index++; 
+                                }
+                                if (currRound >= 5 && isReachable(gameState, dracLocation, dracTrail[4], currRound) == TRUE) { 
+                                        ambiguousMoves[index] = DOUBLE_BACK_5; index++; 
+                                }
                         }
                         if (canTeleport == TRUE) { ambiguousMoves[index] = TELEPORT; }
                 }
+
+                int j; printf("num of ambiguous moves: %d ", numOfAmbiguousMoves);
+                for (j = 0; j < numOfAmbiguousMoves; j++){
+                        printf("[%d] ", ambiguousMoves[j]);  
+                }
+                printf("\n");
 
                 // NOTE: the legalMoves array should contain all possible moves made by Drac
                 // hence we choose a random value by randomly choosing any index
@@ -106,10 +138,12 @@ void decideDraculaMove(DracView gameState)
                         }
                 }
 
+                printf("nextMove: %s\n", nextMove);
+
                 // NOTE: the registerBestPlay() function is already is written for us
 	        registerBestPlay(nextMove, "Mwuhahahaha");
 
-                // IF THIS WORKS, Dracula should be able to randomly make a legal move
+                // IF THIS WORKS, Dracula should be able to randomly choose and make any possible legal move
         }
 }
 
@@ -145,4 +179,18 @@ static int isDoubleBackInTrail(DracView gameState)
         }
         free(reviewTrail);
         return FALSE;
+}
+
+static int isReachable(DracView gameState, LocationID from, LocationID recentLoc, Round round) 
+{
+    int numLocations = 0;
+    LocationID *reachableLoc = connectedLocationsForDrac(gameState, &numLocations, from, PLAYER_DRACULA, round, TRUE, FALSE, TRUE);
+
+    int i;
+    for (i = 0; i < numLocations; i++) {
+        if (reachableLoc[i] == recentLoc) {
+            return TRUE; 
+        }
+    }
+    return FALSE;
 }

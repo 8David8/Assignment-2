@@ -9,7 +9,10 @@
 #include "Game.h"
 #include "GameView.h"
 #include "DracView.h"
+#include "Map.h"
+#include "Places.h"
 
+#define validPlayer(p) ((p) >= PLAYER_LORD_GODALMING && (p) <= PLAYER_DRACULA)
 // Representation of Dracula's view of the game
 
 struct dracView {
@@ -216,3 +219,25 @@ LocationID *whereCanTheyGo(DracView currentView, int *numLocations,
                            road, rail, sea);
     return locations;
 }
+
+LocationID *connectedLocationsForDrac(DracView currentView, int *numLocations,
+                               LocationID from, PlayerID player, Round round,
+                               int road, int rail, int sea)
+{
+    assert(validPlace(from));
+    assert(validPlayer(player));
+
+    Map europe = newMap();
+    int drac = (player == PLAYER_DRACULA);
+    int railLength = (player + round) % 4;
+
+    if (!rail) railLength = 0;
+    if (drac) railLength = 0;
+
+    LocationID *res;
+	res = reachableLocations(europe, numLocations, from, drac, railLength, road, sea);
+    disposeMap(europe);
+    return res;
+}
+
+
